@@ -1,22 +1,40 @@
 # Mimic
 
-### Mimic is no longer being maintained (if you haven't figured it out already).
+### Temporary maintenance by EveryOS.
+### Do not expect this to continue.
 
-[![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
+Message from EveryOS: This is temporary maintenance. I plan on looking into
+[doppio](https://github.com/plasma-umass/doppio) in order to write my own emulator.
 
 A fully featured emulator for the [Minecraft](http://minecraft.net) mod [ComputerCraft](http://computercraft.info) that runs straight in your browser.
+
+I have more code on my local computer than here. Here is the plan:
+* Scrap old rom and bios, upload new rom and bios (Done on local computer)
+* Add enough APIs to boot new rom (Done on local computer)
+* Load bios with a XMLHttpRequest (Done on local computer)
+* Merge pr/27 (Done on local computer)
+* Update the graphics engine (Partly done on local computer)
+* Use websockets to emulate the http.websocket api (TODO)
+* Update http api to use XMLHttpRequests and anti-CORs proxy (TODO)
+* Update "rb" mode on fs.open
+* Configuration screen (TODO)
+* Download folders (TODO)
+* Upload files/folders (TODO)
+* Isolate bios and pre-bios (TODO)
+* Remove pre-bios (Not Immediate)
+* notes/todo.txt (TODO)
+* Anything I forgot (TODO)
 
 Mimic makes use of
 * [Emscripten](https://github.com/kripken/emscripten) - allowing a direct port of Lua 5.1 into JavaScript
 * [asm.js](http://asmjs.org/) - the engine behind Emscripten
 * [lua5.1.js](https://github.com/logiceditor-com/lua5.1.js/) - a library built by Emscripten
-* [Jquery](http://jquery.com/) - a masterful DOM manipulation library
-* [Ace Editor](http://ace.c9.io/) - a pure JavaScript editor
+* [Jquery](http://jquery.com/) - a DOM manipulation library
+* [Ace Editor](http://ace.c9.io/) - a Lua editor written in pure JavaScript
 * [Bootstrap](http://getbootstrap.com/) - a CSS framework
 * [BrowserFS.js](https://github.com/jvilk/BrowserFS) - an emulation of the Node.JS filesystem API using LocalStorage and read-only ZIP backends
 * [Purl](https://github.com/allmarkedup/purl) - parsing of URL parameters
 * [PrefixFree](http://leaverou.github.io/prefixfree/) - removes the need for vendor prefixes in CSS
-* [xdRequest](https://code.google.com/p/xdrequest/) - allows cross site HTTP requests
 * [FileSaver.js Polyfill](https://github.com/eligrey/FileSaver.js) - library to download content to the computer
 * [Blob.js Polyfill](https://github.com/eligrey/Blob.js) - a FileSaver.js dependency
 * The default rom files that come with ComputerCraft
@@ -25,13 +43,15 @@ Mimic makes use of
 ### Credits
 
 * Made by [GravityScore](https://github.com/GravityScore) and [1lann](https://github.com/1lann)
-* ComputerCraft by dan200 (Twitter: [@DanTwoHundred](https://twitter.com/dan200))
+* Modified by [EveryOS](https://github.com/jasonthekitten)
+* Other contributors (e.g. Oeed, Apemanzilla)
+* ComputerCraft by dan200 (Twitter: [@DanTwoHundred](https://twitter.com/dan200)), moded by SquidDev
 * lua5.1.js by [Alexander Gladysh](https://github.com/agladysh)
 
 
 ### License
 
-Mimic is (as of October 2016, now) licensed under The MIT license
+Mimic is (as of October 2016, long ago) licensed under The MIT license
 
 ```
 Copyright (c) 2016 Jason Chu (1lann) and Bennett Anderson (GravityScore).
