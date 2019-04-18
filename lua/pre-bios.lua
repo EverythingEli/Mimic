@@ -1,13 +1,59 @@
+--Settings API(Refer to http://www.computercraft.info/wiki/Settings_(API))
+--Old implementation of mine. Not garanteed (spelling?) to work
+local tSettings = {}
+settings = {}
+settings.set = function(name, value)
+  tSettings[name] = value
+end
+settings.get = function(name, default)
+  local returnValue
+  if tSettings[name] then
+    returnValue = tSettings[name]
+  else
+    returnValue = default
+  end
+  return returnValue
+end
+settings.unset = function(name)
+  tSettings[name] = nil
+end
+settings.clear = function(name)
+  tSettings = {}
+end
+settings.getNames = function()
+  local t = {}
+  for i, f in pairs(tSettings) do
+    table.insert(t, i)
+  end
+  return t
+end
+settings.load = function(path)
+  local loaded = false
+  if fs.exists(path) and not fs.isDir(path) then
+    local f = assert (fs.open (path, "r"))
+    local s = f:readAll()
+    f:close ()
+    tSettings = textunserialize(s)
+    loaded = true
+  end
+  return loaded
+end
+settings.save = function(path)
+  local saved = false
+  if not fs.isDir(path) and not fs.isReadOnly(path) then
+    local f = io.open (path, "w")
+    f.write(textserialize(tSettings))
+    f:close ()
+  end
+  return saved
+end
 
---  Some functions are taken from the ComputerCraft bios.lua,
---  which was written by dan200
-
---  I just cleaned up the code a bit
 
 
 console = {}
 console.log = print
 
+bit32 = {}
 
 local debugLib = debug
 collectgarbage = nil
@@ -53,6 +99,7 @@ xpcall = function(_fn, _fnErrorHandler)
 	if results[1] == true then
 		return true, unpack(results, 2)
 	else
+		console.log(results[2])
 		return false, _fnErrorHandler(results[2])
 	end
 end

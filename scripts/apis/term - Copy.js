@@ -38,12 +38,9 @@ termHelpers.luaValueToString = function(L, a) {
 	str = str.replace("\n", " ");
 	return str;
 }
-
-
-termAPI.write = function(L) {
+termHelpers.write = function(str) {
 	var computer = core.getActiveComputer();
-	var str = termHelpers.luaValueToString(L);
-
+	
 	var x = computer.cursor.x;
 	var y = computer.cursor.y;
 	var fg = computer.colors.foreground;
@@ -53,6 +50,32 @@ termAPI.write = function(L) {
 
 	computer.cursor.x += str.length;
 	render.cursorBlink();
+}
+termHelpers.setTextColorRaw = function(hex) {
+	hex = 15-hex
+	
+	var computer = core.getActiveComputer();
+	computer.colors.foreground = hex.toString(16);
+}
+termHelpers.setTextColor = function(color) {
+	termHelpers.setTextColorRaw((Math.log(color) / Math.log(2)));
+	//termHelpers.setTextColorRaw(15 - (Math.log(color) / Math.log(2)));
+}
+termHelpers.setBackgroundColorRaw = function(hex) {
+	hex = 15-hex
+	
+	var computer = core.getActiveComputer();
+	computer.colors.background = hex.toString(16);
+}
+termHelpers.setBackgroundColor = function(str) {
+	termHelpers.setBackgroundColorRaw(Math.log(color) / Math.log(2)));
+	//termHelpers.setBackgroundColorRaw(15 - (Math.log(color) / Math.log(2)));
+}
+
+
+termAPI.write = function(L) {
+	var str = termHelpers.luaValueToString(L);
+	termHelpers.write(str)
 
 	return 0;
 }
@@ -67,17 +90,13 @@ termAPI.blit = function(L) {
 	var y = computer.cursor.y;
 
 	for (var i=0; i<str.length; i++) {
-		computer.colors.foreground = (15-parseInt(fgstr.substring(i, i+1), 16)).toString(16)
-		computer.colors.background = (15-parseInt(bgstr.substring(i, i+1), 16)).toString(16)
-		render.character(
-			x+i, y, str.substring(i, i+1), 
-			computer.colors.foreground, 
-			computer.colors.background
-		);
+		termHelpers.setTextColorRaw(parseInt(fgstr.substring(i, i+1), 16))
+		termHelpers.setBackgroundColorRaw(parseInt(bgstr.substring(i, i+1), 16))
+		termHelpers.write(str.substring(i, i+1));
 	}
 
 	computer.cursor.x += str.length;
-	render.cursorBlink();
+	//render.cursorBlink();
 
 	return 0;
 }
@@ -154,11 +173,7 @@ termAPI.setCursorBlink = function(L) {
 
 
 termAPI.setTextColor = function(L) {
-	var computer = core.getActiveComputer();
-	var color = C.luaL_checkint(L, 1);
-	var hex = 15 - (Math.log(color) / Math.log(2));
-	computer.colors.foreground = hex.toString(16);
-
+	termHelpers.setTextColor(C.luaL_checkint(L, 1));
 
 	return 0;
 }
@@ -172,10 +187,7 @@ termAPI.getTextColor = function(L) {
 
 
 termAPI.setBackgroundColor = function(L) {
-	var computer = core.getActiveComputer();
-	var color = C.luaL_checkint(L, 1);
-	var hex = 15 - (Math.log(color) / Math.log(2));
-	computer.colors.background = hex.toString(16);
+	termHelpers.setBackgroundColor(C.luaL_checkint(L, 1));
 
 	return 0;
 }
