@@ -39,8 +39,15 @@ osAPI.computerID = osAPI.getComputerID;
 
 osAPI.setComputerLabel = function(L) {
 	var computer = core.getActiveComputer();
-	var str = C.luaL_checkstring(L, 1);
-	computer.label = str.trim();
+	
+	if (C.lua_type(L, 1) != -1 && C.lua_type(L, 1) != C.LUA_TNIL) {
+		var str = C.luaL_checkstring(L, 1);
+		computer.label = str.trim();
+	} else {
+		computer.label = null;
+	}
+	
+	sidebar.update();
 
 	return 0;
 }

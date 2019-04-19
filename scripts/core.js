@@ -44,17 +44,36 @@ core.serializeTable = function(table) {
 
 
 core.createComputer = function(id, advanced) {
-	var computer = new Computer(id, advanced);
-	core.computers.push(computer);
+	core.computers[id] = new Computer(id, advanced);
+	return core.computers[id];
 }
 
-
+core.activeComputer = 0;
 core.getActiveComputer = function() {
 	if (core.computers) {
+		if (core.computers[core.activeComputer]){
+			return core.computers[core.activeComputer];
+		}
+		core.activeComputer = 0;
 		return core.computers[0];
 	} else {
 		return undefined;
 	}
+}
+core.setActiveComputer = function(id) {
+	var oldComputer = core.computers[core.activeComputer]
+	if(oldComputer) {
+		oldComputer.image = context.getImageData(0, 0, canvas.width, canvas.height);
+	}
+	
+	core.activeComputer = id;
+	var computer = core.computers[core.activeComputer]||core.createComputer(id, true);
+	if (computer.image == null) {
+		render.clear();
+	} else {
+		context.putImageData(computer.image, 0, 0);
+	}
+	return computer;
 }
 
 

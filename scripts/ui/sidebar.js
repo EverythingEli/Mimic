@@ -1,4 +1,3 @@
-
 //
 //  sidebar.js
 //  1lann and GravityScore
@@ -53,9 +52,18 @@ sidebar.createFileElement = function(piece) {
 	if (piece.userData) {
 		element.attr("user-data", piece.userData);
 	}
+	
+	if (piece.script) {
+		element.script = piece.script;
+	}
 
 	if (piece.computer) {
 		element.addClass("computer");
+	}
+	
+	if (piece.button) {
+		element.addClass("button");
+		element.addClass(piece.decor);
 	}
 
 	if (piece.computer) {
@@ -73,6 +81,8 @@ sidebar.createFileElement = function(piece) {
 		event.stopPropagation();
 		if (piece.computer) {
 			sidebar.onComputerClick(element);
+		} else if (piece.button) {
+			sidebar.onButtonClick(element);
 		} else {
 			sidebar.onFileClick(element);
 		}
@@ -80,7 +90,6 @@ sidebar.createFileElement = function(piece) {
 
 	return element;
 }
-
 
 sidebar.populate = function(data, level, parent) {
 	level = level || 0;
@@ -165,7 +174,20 @@ sidebar.onComputerClick = function(element) {
 	}
 }
 
+sidebar.onButtonClick = function(element) {
+	if (element.script) {element.script()}
+}
 
+//
+//    Scripts
+//
+
+sidebar.createComputerButtonScript = function(){
+	var id = core.computers.length
+	core.createComputer(id, true);
+	core.computers[id].launch();
+	sidebar.update()
+}
 
 //
 //    Selection
@@ -196,9 +218,11 @@ sidebar.select = function(element) {
 sidebar.typeOfSelected = function() {
 	if (!sidebar.selected) {
 		return "none";
-	} if (sidebar.selected.hasClass("computer")) {
+	} else if (sidebar.selected.hasClass("computer")) {
 		return "computer";
-	} else if (sidebar.selected.attr("folder") == "true") {
+	} else if (sidebar.selected.hasClass("button")) {
+		return "button";
+	}else if (sidebar.selected.attr("folder") == "true") {
 		return "folder";
 	} else {
 		return "file";
@@ -222,8 +246,8 @@ sidebar.pathOfSelected = function() {
 //
 
 
-sidebar.dataFromFilesystem = function(dir) {
-	var files = [];
+sidebar.dataFromFilesystem = function(dir, files) {
+	var files = files||[];
 	var folderContents = filesystem.list(dir);
 
 	for (var i in folderContents) {
@@ -241,7 +265,6 @@ sidebar.dataFromFilesystem = function(dir) {
 		} else {
 			files.push({
 				"name": relativePath,
-				"folder": false,
 				"userData": fullPath,
 			});
 		}
@@ -252,15 +275,29 @@ sidebar.dataFromFilesystem = function(dir) {
 
 
 sidebar.getData = function() {
-	var computer = core.getActiveComputer();
-	var dir = "/computers/" + computer.id;
-	var files = sidebar.dataFromFilesystem(dir);
-
-	files.unshift({
-		"name": "Computer 0",
-		"computer": true,
-		"folder": false,
-		"userData": "0",
+	var files = [];
+	
+	//var folderContents = filesystem.list("computers");
+	for (var i in core.computers) {//folderContents) {
+		var dir = "/computers/" + i;
+		if (core.computers[parseInt(i)]) {
+			var computer = core.computers[parseInt(i)];
+			
+			files.push({
+				"name": computer.label||("Computer "+(computer.id||0)),
+				"computer": true,
+				"userData": (computer.id||0).toString(),
+			});
+			
+			files = sidebar.dataFromFilesystem(dir, files);
+		}
+	}
+	
+	files.push({
+		"name": "New Computer (+)",
+		"button": true,
+		"decor": "add-button",
+		"script": sidebar.createComputerButtonScript,
 	});
 
 	return files;

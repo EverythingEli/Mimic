@@ -142,6 +142,7 @@ ui.saveOpenFile = function() {
 
 
 ui.showComputer = function(id) {
+	core.setActiveComputer(id);
 	ui.saveOpenFile();
 
 	$(".editor-container").css("display", "none");

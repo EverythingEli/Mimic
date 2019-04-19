@@ -8,15 +8,11 @@ Message from EveryOS: This is temporary maintenance. I plan on looking into
 
 A fully featured emulator for the [Minecraft](http://minecraft.net) mod [ComputerCraft](http://computercraft.info) that runs straight in your browser.
 
-I have more code on my local computer than here. Here is the plan:
-* Scrap old rom and bios, upload new rom and bios (Done on local computer)
-* Add enough APIs to boot new rom (Done on local computer)
-* Load bios with a XMLHttpRequest (Done on local computer)
-* Merge pr/27 (Done on local computer)
-* Update the graphics engine (Partly done on local computer)
+Here is the plan on updates:
+* Continue to update the graphics engine (TODO)
 * Use websockets to emulate the http.websocket api (TODO)
 * Update http api to use XMLHttpRequests and anti-CORs proxy (TODO)
-* Update "rb" mode on fs.open
+* Update "rb" mode on fs.open (TODO)
 * Configuration screen (TODO)
 * Download folders (TODO)
 * Upload files/folders (TODO)

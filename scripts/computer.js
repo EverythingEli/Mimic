@@ -13,14 +13,18 @@
 
 var Computer = function(id, advanced) {
 	id = id || 0;
-	advanced = advanced || true;
+	advanced = advanced || false;
 
 	this.id = id;
 	this.advanced = advanced;
 	this.label = null;
 
 	this.L = C.lua_open();
-
+	
+	console.log("Created new computer"); //More here for yielding than notifying user
+	
+	this.image = null
+	
 	this.width = config.width;
 	this.height = config.height;
 
