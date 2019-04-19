@@ -50,28 +50,30 @@ core.createComputer = function(id, advanced) {
 
 core.activeComputer = 0;
 core.getActiveComputer = function() {
-	if (core.computers) {
-		if (core.computers[core.activeComputer]){
-			return core.computers[core.activeComputer];
-		}
-		core.activeComputer = 0;
-		return core.computers[0];
+	if (core.computers && core.computers[core.activeComputer]) {
+		return core.computers[core.activeComputer];
 	} else {
 		return undefined;
 	}
 }
 core.setActiveComputer = function(id) {
-	var oldComputer = core.computers[core.activeComputer]
+	var oldComputer = core.computers[core.activeComputer] || core.computers[0];
 	if(oldComputer) {
 		oldComputer.image = context.getImageData(0, 0, canvas.width, canvas.height);
 	}
 	
+	//Prevent weird cursor thing by clearing overlay
+	//Better than the fillRect function, as user does not see black screen
+	overlayContext.putImageData(new ImageData(overlayCanvas.width, overlayCanvas.height), 0, 0);
+	
 	core.activeComputer = id;
-	var computer = core.computers[core.activeComputer]||core.createComputer(id, true);
-	if (computer.image == null) {
-		render.clear();
-	} else {
+	var computer = core.computers[core.activeComputer]
+	if (computer && computer.image) {
 		context.putImageData(computer.image, 0, 0);
+	}
+	if (!computer) {
+		computer = core.createComputer(id, true);
+		computer.launch();
 	}
 	return computer;
 }
@@ -138,15 +140,18 @@ core.setupCursorFlash = function() {
 
 
 core.afterSetup = function() {
+	core.computers = [];
+	
 	ui.onLoad();
 
 	core.setupCursorFlash();
 
-	core.computers = [];
 	core.createComputer(0, true);
 	ui.afterLoad();
 
 	core.computers[0].launch();
+	
+	sidebar.update();
 }
 
 

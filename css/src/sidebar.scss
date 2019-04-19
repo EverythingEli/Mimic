@@ -43,6 +43,10 @@ $sidebar-width: 300px;
 		&.computer {
 			font-size: 20px;
 		}
+		
+		&.label {
+			font-size: 18px;
+		}
 
 		p {
 			padding: 10px 25px;
@@ -69,6 +73,11 @@ $sidebar-width: 300px;
 		}
 
 		&.computer .glyphicon {
+			font-size: 14px;
+			margin-top: 15px;
+		}
+		
+		&.label .glyphicon {
 			font-size: 14px;
 			margin-top: 15px;
 		}

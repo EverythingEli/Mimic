@@ -53,7 +53,7 @@ end
 console = {}
 console.log = print
 
-bit32 = {}
+--bit32 = {}
 
 local debugLib = debug
 collectgarbage = nil

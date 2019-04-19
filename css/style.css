@@ -19,6 +19,8 @@
     cursor: default; }
     .sidebar li.computer {
       font-size: 20px; }
+	.sidebar li.button {
+      font-size: 18px; }
     .sidebar li p {
       padding: 10px 25px;
       margin: 0; }
@@ -35,6 +37,9 @@
       font-size: 14px;
       float: right; }
     .sidebar li.computer .glyphicon {
+      font-size: 14px;
+      margin-top: 15px; }
+	.sidebar li.label .glyphicon {
       font-size: 14px;
       margin-top: 15px; }
 

@@ -59,16 +59,19 @@ sidebar.createFileElement = function(piece) {
 
 	if (piece.computer) {
 		element.addClass("computer");
+		var glyphicon = $("<span></span>", {
+			"class": "glyphicon glyphicon-chevron-right pull-right",
+		});
+
+		glyphicon.appendTo(element);
 	}
 	
 	if (piece.button) {
 		element.addClass("button");
 		element.addClass(piece.decor);
-	}
-
-	if (piece.computer) {
+		
 		var glyphicon = $("<span></span>", {
-			"class": "glyphicon glyphicon-chevron-right pull-right",
+			"class": "glyphicon "+(piece.class||"")+" pull-right",
 		});
 
 		glyphicon.appendTo(element);
@@ -184,9 +187,7 @@ sidebar.onButtonClick = function(element) {
 
 sidebar.createComputerButtonScript = function(){
 	var id = core.computers.length
-	core.createComputer(id, true);
-	core.computers[id].launch();
-	sidebar.update()
+	ui.showComputer(id);
 }
 
 //
@@ -230,10 +231,13 @@ sidebar.typeOfSelected = function() {
 }
 
 
-sidebar.pathOfSelected = function() {
+sidebar.pathOfSelected = function(includeComputers) {
 	if (sidebar.selected && sidebar.typeOfSelected() == "file") {
 		var path = sidebar.selected.attr("user-data");
 		return path;
+	} else if (sidebar.selected && includeComputers) {
+		//return sidebar.selected.attr("user-data");
+		return core.activeComputer.toString();
 	} else {
 		return undefined;
 	}
@@ -248,7 +252,7 @@ sidebar.pathOfSelected = function() {
 
 sidebar.dataFromFilesystem = function(dir, files) {
 	var files = files||[];
-	var folderContents = filesystem.list(dir);
+	var folderContents = computerFilesystem.list(dir);//filesystem.list(dir);
 
 	for (var i in folderContents) {
 		var relativePath = folderContents[i];
@@ -276,27 +280,33 @@ sidebar.dataFromFilesystem = function(dir, files) {
 
 sidebar.getData = function() {
 	var files = [];
+	var availableComputers = [];
 	
-	//var folderContents = filesystem.list("computers");
-	for (var i in core.computers) {//folderContents) {
+	var folderContents = filesystem.list("/computers");
+	for (var i in folderContents) {
+		availableComputers[i] = true;
+	}
+	for (var i in core.computers) {
+		availableComputers[i] = true;
+	}
+	for (var i in availableComputers) {
 		var dir = "/computers/" + i;
-		if (core.computers[parseInt(i)]) {
-			var computer = core.computers[parseInt(i)];
-			
-			files.push({
-				"name": computer.label||("Computer "+(computer.id||0)),
-				"computer": true,
-				"userData": (computer.id||0).toString(),
-			});
-			
-			files = sidebar.dataFromFilesystem(dir, files);
-		}
+		var computer = core.computers[parseInt(i)];
+		
+		files.push({
+			"name": ((!computer&&"Computer "+i))||(computer.label||("Computer "+(computer.id||0))),
+			"computer": true,
+			"userData": i,
+		});
+		
+		files = sidebar.dataFromFilesystem(dir, files);
 	}
 	
 	files.push({
-		"name": "New Computer (+)",
+		"name": "New Computer",
 		"button": true,
 		"decor": "add-button",
+		"class": "glyphicon-plus",
 		"script": sidebar.createComputerButtonScript,
 	});
 
@@ -318,7 +328,7 @@ sidebar.update = function() {
 			sidebar.select(newSelection);
 		}
 	} else {
-		var selection = $("li[user-data='0'][class*='computer']");
+		var selection = $("li[user-data='"+(sidebar.pathOfSelected(true)||0)+"'][class*='computer']");
 		sidebar.select(selection);
 	}
 }

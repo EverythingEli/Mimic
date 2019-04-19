@@ -74,7 +74,7 @@ Computer.prototype.installStartupScript = function(contents) {
 
 Computer.prototype.installAPIs = function() {
 	var apis = {
-		"bit": bitAPI,
+		"bit32": bitAPI,
 		"fs": fsAPI,
 		"http": httpAPI,
 		"os": osAPI,
