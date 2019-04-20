@@ -21,8 +21,6 @@ var Computer = function(id, advanced) {
 
 	this.L = C.lua_open();
 	
-	console.log("Created new computer"); //More here for yielding than notifying user
-	
 	this.image = null
 	
 	this.width = config.width;

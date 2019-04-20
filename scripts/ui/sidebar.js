@@ -252,7 +252,7 @@ sidebar.pathOfSelected = function(includeComputers) {
 
 sidebar.dataFromFilesystem = function(dir, files) {
 	var files = files||[];
-	var folderContents = computerFilesystem.list(dir);//filesystem.list(dir);
+	var folderContents = filesystem.list(dir);
 
 	for (var i in folderContents) {
 		var relativePath = folderContents[i];
@@ -284,7 +284,7 @@ sidebar.getData = function() {
 	
 	var folderContents = filesystem.list("/computers");
 	for (var i in folderContents) {
-		availableComputers[i] = true;
+		availableComputers[folderContents[i]] = true;
 	}
 	for (var i in core.computers) {
 		availableComputers[i] = true;

@@ -1,61 +1,7 @@
---Settings API(Refer to http://www.computercraft.info/wiki/Settings_(API))
---Old implementation of mine. Not garanteed (spelling?) to work
-local tSettings = {}
-settings = {}
-settings.set = function(name, value)
-  tSettings[name] = value
-end
-settings.get = function(name, default)
-  local returnValue
-  if tSettings[name] then
-    returnValue = tSettings[name]
-  else
-    returnValue = default
-  end
-  return returnValue
-end
-settings.unset = function(name)
-  tSettings[name] = nil
-end
-settings.clear = function(name)
-  tSettings = {}
-end
-settings.getNames = function()
-  local t = {}
-  for i, f in pairs(tSettings) do
-    table.insert(t, i)
-  end
-  return t
-end
-settings.load = function(path)
-  local loaded = false
-  if fs.exists(path) and not fs.isDir(path) then
-    local f = assert (fs.open (path, "r"))
-    local s = f:readAll()
-    f:close ()
-    tSettings = textunserialize(s)
-    loaded = true
-  end
-  return loaded
-end
-settings.save = function(path)
-  local saved = false
-  if not fs.isDir(path) and not fs.isReadOnly(path) then
-    local f = io.open (path, "w")
-    f.write(textserialize(tSettings))
-    f:close ()
-  end
-  return saved
-end
-
-
-
 console = {}
 console.log = print
 
---bit32 = {}
-
-local debugLib = debug
+local debug = debug
 collectgarbage = nil
 require = nil
 module = nil
@@ -70,30 +16,27 @@ xpcall = function(_fn, _fnErrorHandler)
 
 	local co = coroutine.create(_fn)
 	local coroutineClock = os.clock()
-
-	debugLib.sethook(co, function()
+	
+	function hook()
 		if os.clock() >= coroutineClock + 3.5 then
 			console.log("Lua: Too long without yielding")
 			error("Too long without yielding", 2)
 		end
-	end, "", 10000)
+	end
+
+	debug.sethook(co, hook, "", 10000)
 
 	local results = {coroutine.resume(co)}
 
-	debugLib.sethook(co)
+	debug.sethook(co)
 	while coroutine.status(co) ~= "dead" do
 		local events = {coroutine.yield()}
 
 		coroutineClock = os.clock()
-		debugLib.sethook(co, function()
-			if os.clock() >= coroutineClock + 3.5 then
-				console.log("Lua: Too long without yielding")
-				error("Too long without yielding", 2)
-			end
-		end, "", 10000)
+		debug.sethook(co, hook, "", 10000)
 
 		results = {coroutine.resume(co, unpack(events))}
-		debugLib.sethook(co)
+		debug.sethook(co)
 	end
 
 	if results[1] == true then
@@ -272,23 +215,8 @@ local nativeYield = coroutine.yield
 function coroutine.yield(filter, ...)
 	while true do
 		local response = {nativeYield(filter, ...)}
-		if response[1] == "http_bios_wrapper_success" then
-			local responseText = response[3]
-			local responseData = {
-				["readAll"] = function()
-					return responseText
-				end,
-				["close"] = function()
-				end,
-				["getResponseCode"] = function()
-					return "200"
-				end
-			}
-
-			return "http_success",response[2],responseData
-		elseif response[1] == filter or not filter then
+		if response[1] == filter or not filter then
 			return unpack(response)
 		end
 	end
 end
-
