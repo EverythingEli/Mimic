@@ -63,15 +63,8 @@ pcall = function(_fn, ...)
 	)
 end
 
-
-local fsWrite = fs.write
-fs.write = nil
-
-local fsAppend = fs.append
-fs.append = nil
-
-local fsRead = fs.read
-fs.read = nil
+local fsdo = fs.fsdo;
+fs.fsdo = nil;
 
 function fs.open(path, mode)
 	local containingFolder = path:sub(1, path:len() - fs.getName(path):len())
@@ -94,10 +87,12 @@ function fs.open(path, mode)
 				f._buffer = f._buffer .. tostring(str) .. "\\n"
 			end,
 			["flush"] = function()
-				fsWrite(path, f._buffer)
+				fsdo("w", path, "")
+				fsdo("a", path, f._buffer)
 			end,
 			["close"] = function()
-				fsWrite(path, f._buffer)
+				fsdo("w", path, "")
+				fsdo("a", path, f._buffer)
 				f.write = nil
 				f.flush = nil
 			end,
@@ -109,7 +104,7 @@ function fs.open(path, mode)
 			return nil
 		end
 
-		local contents = fsRead(path)
+		local contents = fsdo("r", path, "")
 		if not contents then
 			return
 		end
@@ -128,7 +123,7 @@ function fs.open(path, mode)
 					return nil
 				end
 
-				local nextLine = f._contents:find("\\n", f._cursor, true)
+				local nextLine = f._contents:find("\n", f._cursor, true)
 				if not nextLine then
 					nextLine = f._contents:len()
 				else
@@ -158,10 +153,10 @@ function fs.open(path, mode)
 				f._buffer = f._buffer .. tostring(str) .. "\\n"
 			end,
 			["flush"] = function()
-				fsAppend(path, f._buffer)
+				fsdo("a", path, f._buffer)
 			end,
 			["close"] = function()
-				fsAppend(path, f._buffer)
+				fsdo("a", path, f._buffer)
 				f.write = nil
 				f.flush = nil
 			end,
@@ -173,20 +168,23 @@ function fs.open(path, mode)
 	end
 end
 
-
-local listAllFiles = fs.listAll
-fs.listAll = nil
-
 function fs.find(path)
 	path = path:gsub("^/+", "")
 	path = path:gsub("/+", "/")
 	path = path:gsub("*", "[^/]-")
 	path = "^" .. path .. "$"
 
-	local allFiles = listAllFiles()
+	local queue = {""}
 	local matches = {}
 
-	for _, file in pairs(allFiles) do
+	while queue[1] do
+		file = queue[1]
+		table.remove(queue, 1)
+		if fs.isDir(file) then
+			for k, v in pairs(fs.list(file)) do
+				table.insert(queue, file.."/"..v)
+			end
+		end
 		file = file:gsub("^/+", "")
 		file = file:gsub("/+$", "")
 		file = file:gsub("/+", "/")
@@ -197,16 +195,6 @@ function fs.find(path)
 	end
 
 	return matches
-end
-
-
-function fs.getDir(path)
-	path = path:gsub("^/+", "")
-	path = path:gsub("/+$", "")
-	path = path:gsub("/+", "/")
-
-	local name = fs.getName(path)
-	return path:sub(1, -name:len() - 2)
 end
 
 

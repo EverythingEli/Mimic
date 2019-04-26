@@ -27,6 +27,7 @@ var Computer = function(id, advanced) {
 	this.height = config.height;
 
 	this.reset();
+	this.setupFS();
 	this.installAPIs();
 }
 
@@ -66,6 +67,14 @@ Computer.prototype.installStartupScript = function(contents) {
 	if (typeof(contents) == "string") {
 		C.lua_pushstring(this.L, contents);
 		C.lua_setglobal(this.L, "startupScript");
+	}
+}
+
+
+Computer.prototype.setupFS = function() {
+	var rootPath = fsHelper.getCCPath("/", this.id);
+	if (!filesystem.isDir(rootPath)) {
+		filesystem.makeDir(rootPath);
 	}
 }
 
@@ -134,7 +143,7 @@ Computer.prototype.launch = function() {
 		console.log("Intialization Error: ", errorCode);
 		console.log("Trace: ", trace);
 		console.log("Thread closed");
-		thread.alive = false;
+		this.thread.alive = false;
 
 		render.bsod(
 			"FATAL : BIOS ERROR",
