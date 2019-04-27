@@ -19,6 +19,8 @@ var config = {
 	"borderHeight": 4,
 
 	"maxStorageSize": 2 * 1024 * 1024, // 2 MB
+	
+	"proxy": "https://cors-anywhere.herokuapp.com/%s",
 };
 
 

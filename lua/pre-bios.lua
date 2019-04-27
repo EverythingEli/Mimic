@@ -46,8 +46,6 @@ xpcall = function(_fn, _fnErrorHandler)
 		return false, _fnErrorHandler(results[2])
 	end
 end
-
-
 pcall = function(_fn, ...)
 	assert(type(_fn) == "function",
 		"bad argument #1 to pcall (function expected, got " .. type(_fn) .. ")")
@@ -61,6 +59,39 @@ pcall = function(_fn, ...)
 			return _error
 		end
 	)
+end
+
+local function wrapOS(content)
+	local function checkClosed()
+		if not content then error("attempt to use a closed file") end
+	end
+	return {
+		close = function()
+			closed = true
+		end,
+		read = function()
+			checkClosed()
+			if content == "" then return nil end
+			local v = content:sub(1, 1)
+			content = content:sub(2)
+			return v
+		end,
+		readAll = function()
+			checkClosed()
+			if content == "" then return nil end
+			v = content
+			content = ""
+			return v
+		end,
+		readLine = function()
+			checkClosed()
+			if content == "" then return nil end
+			local lpos = (content:find("\n") or #content+1)-1
+			local v = content:sub(1, lpos)
+			content = content:sub(lpos+2)
+			return v
+		end
+	}
 end
 
 local fsdo = fs.fsdo;
@@ -77,22 +108,21 @@ function fs.open(path, mode)
 			return nil
 		end
 
-		local f = {}
+		local f, buffer = {}, ""
 		f = {
-			["_buffer"] = "",
 			["write"] = function(str)
-				f._buffer = f._buffer .. tostring(str)
+				buffer = buffer .. tostring(str)
 			end,
 			["writeLine"] = function(str)
-				f._buffer = f._buffer .. tostring(str) .. "\\n"
+				buffer = buffer .. tostring(str) .. "\\n"
 			end,
 			["flush"] = function()
 				fsdo("w", path, "")
-				fsdo("a", path, f._buffer)
+				fsdo("a", path, buffer)
 			end,
 			["close"] = function()
 				fsdo("w", path, "")
-				fsdo("a", path, f._buffer)
+				fsdo("a", path, buffer)
 				f.write = nil
 				f.flush = nil
 			end,
@@ -109,54 +139,26 @@ function fs.open(path, mode)
 			return
 		end
 
-		local f = {}
-		f = {
-			["_cursor"] = 1,
-			["_contents"] = contents,
-			["readAll"] = function()
-				local contents = f._contents:sub(f._cursor)
-				f._cursor = f._contents:len()
-				return contents
-			end,
-			["readLine"] = function()
-				if f._cursor >= f._contents:len() then
-					return nil
-				end
-
-				local nextLine = f._contents:find("\n", f._cursor, true)
-				if not nextLine then
-					nextLine = f._contents:len()
-				else
-					nextLine = nextLine - 1
-				end
-
-				local line = f._contents:sub(f._cursor, nextLine)
-				f._cursor = nextLine + 2
-				return line
-			end,
-			["close"] = function() end,
-		}
-
-		return f
+		return wrapOS(contents)
 	elseif mode == "a" then
 		if fs.isReadOnly(path) then
 			return nil
 		end
 
-		local f = {}
+		local f, buffer = {}, ""
 		f = {
-			["_buffer"] = "",
 			["write"] = function(str)
-				f._buffer = f._buffer .. tostring(str)
+				buffer = buffer .. tostring(str)
 			end,
 			["writeLine"] = function(str)
-				f._buffer = f._buffer .. tostring(str) .. "\\n"
+				buffer = buffer .. tostring(str) .. "\\n"
 			end,
 			["flush"] = function()
-				fsdo("a", path, f._buffer)
+				fsdo("a", path, buffer)
+				buffer = ""
 			end,
 			["close"] = function()
-				fsdo("a", path, f._buffer)
+				fsdo("a", path, buffer)
 				f.write = nil
 				f.flush = nil
 			end,
@@ -197,12 +199,37 @@ function fs.find(path)
 	return matches
 end
 
+local nativeQueue = os.queueEvent
+os.queueEvent = function(e, ...)
+	local args = {...}
+	if e == "http_bios" then
+		table.insert(args, 1, false)
+	end
+	nativeQueue(e, unpack(args))
+end
 
 local nativeYield = coroutine.yield
-
 function coroutine.yield(filter, ...)
 	while true do
 		local response = {nativeYield(filter, ...)}
+		if response[1] == "http_bios" and not response[2] then
+			table.remove(response, 2)
+		elseif response[1] == "http_bios" then
+			local oldResponse = response
+			local handle = wrapOS(oldResponse[5])
+			oldResponse[5] = nil
+			handle.getResponseCode = function()
+				return oldResponse[3]
+			end
+			handle.getResponseHeaders = function()
+				return oldResponse[4]
+			end
+			if response[3] >= 200 and response[3] < 400 then
+				response = {"http_success", response[2], handle};
+			else
+				response = {"http_failure", response[2], "MIMIC_FAILURE"};
+			end
+		end
 		if response[1] == filter or not filter then
 			return unpack(response)
 		end
