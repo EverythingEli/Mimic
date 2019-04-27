@@ -256,56 +256,22 @@ filesystem.copy = function(from, to) {
 	from = filesystem.clean(from);
 	to = filesystem.clean(to);
 
-	if (!filesystem.exists(from)) {
+	if (filesystem.exists(to)||!filesystem.exists(from)) {
 		return false;
 	}
-
-	var success = false;
-
-	if (filesystem.isDir(to)) {
-		var locallyResolved = fsHelper.getCCPath("/" + filesystem.getName(from));
-		if (to == from && filesystem.exists(locallyResolved)) {
-
-		} else if (filesystem.isDir(from)) {
-			if (filesystem.exists(to + "/" + filesystem.getName(from))) {
-
-			} else if (to == "/" && filesystem.exists("/" + filesystem.getName(from))) {
-
-			} else {
-				var fileList = filesystem.listRecursively(from, true);
-				for (var i in fileList) {
-					if (!filesystem.isDir(fileList[i])) {
-						var fileName = filesystem.getName(from) + "/" + fileList[i].substring(from.length);
-						filesystem.write(to + "/" + fileName, filesystem.read(fileList[i]));
-					}
-				}
-
-				success = true;
-			}
-		} else if (!filesystem.exists(to + "/" + filesystem.getName(from))) {
-			filesystem.write(to + "/" + filesystem.getName(from), filesystem.read(from));
-			success = true;
+	
+	if (filesystem.isDir(from)) {
+		var ls = filesystem.list(from);
+		for (index in ls) {
+			filesystem.copy(from+ls[index], to+ls[index]);
 		}
-	} else if (!filesystem.exists(to)) {
-		if (filesystem.isDir(from)) {
-			var fileList = filesystem.listRecursively(from, true);
-
-			for (var i in fileList) {
-				if (!filesystem.isDir(fileList[i])) {
-					var fileName = fileList[i].substring(from.length);
-					filesystem.write(to + "/" + fileName, filesystem.read(fileList[i]));
-				}
-			}
-		} else {
-			filesystem.write(to, filesystem.read(from));
-		}
-
-		success = true;
+	} else {
+		filesystem.write(to, filesystem.read(from));
 	}
 	
 	sidebar.update();
 
-	return success;
+	return true;
 }
 
 
@@ -314,7 +280,6 @@ filesystem.move = function(from, to) {
 
 	if (filesystem.copy(from, to)) {
 		if (filesystem.delete(from)) {
-			sidebar.update();
 			success = true;
 		} else {
 			filesystem.delete(to);

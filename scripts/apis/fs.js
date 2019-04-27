@@ -26,6 +26,12 @@ fsHelper.getCCPath = function(path, computerID) {
 	return filesystem.clean(rpath);
 }
 
+fsHelper.getDisplayPath = function(path) {
+	path = filesystem.clean(path);
+	if (path.substring(path.length-1, path.length) && path != "/") path = path.substring(0, path.length-1);
+	return path;
+}
+
 fsHelper.listFiles = function(path) {
 	path = filesystem.clean(path)
 	var files = filesystem.list(fsHelper.getCCPath(path));
@@ -52,9 +58,7 @@ fsHelper.exists = function(path) {
 }
 
 fsHelper.getName = function(path) {
-	path = filesystem.clean(path);
-	path = path.substring(0, path.length-1);
-	if (path=="") {path="/";}
+	path = fsHelper.getDisplayPath(path);
 	var name = path.substring(path.lastIndexOf("/") + 1);
 	return name;
 }
@@ -137,7 +141,7 @@ fsHelper.fsdo = function(m, f, d) {
 
 fsHelper.isReadOnly = function(path) {
 	path = filesystem.clean(path);
-	return name.substring(0, 5)=="/rom/";
+	return path.substring(0, 5)=="/rom/";
 }
 
 fsHelper.makeDir = function(path) {
@@ -154,20 +158,35 @@ fsHelper.makeDir = function(path) {
 }
 
 fsHelper.delete = function(path) {
+	if (filesystem.clean(path)=="/") return false;
 	path = fsHelper.getCCPath(path);
 	return filesystem.delete(path);
 }
 
 fsHelper.copy = function(from, to) {
+	var oF = fsHelper.getDisplayPath(from);
+	var oT = fsHelper.getDisplayPath(to);
+	
 	from = fsHelper.getCCPath(from);
 	to = fsHelper.getCCPath(to);
-	filesystem.copy(from, to);
+	
+	if (fsHelper.isReadOnly(oT)) return oT+": Access denied";
+	if (!fsHelper.exists(oF)) return oF+": No such file";
+	if (filesystem.copy(from, to)) return true;
+	return oT+": File exists";
 }
 
 fsHelper.move = function(from, to) {
+	var oF = fsHelper.getDisplayPath(from);
+	var oT = fsHelper.getDisplayPath(to);
+	
 	from = fsHelper.getCCPath(from);
 	to = fsHelper.getCCPath(to);
-	filesystem.move(from, to);
+	
+	if (fsHelper.isReadOnly(oT)) return oT+": Access denied";
+	if (!fsHelper.exists(oF)) return oF+": No such file";
+	if (filesystem.move(from, to)) return true;
+	return oT+": File exists";
 }
 
 
@@ -267,20 +286,19 @@ fsAPI.isReadOnly = function(L) {
 }
 
 fsAPI.makeDir = function(L) {
-	var path = C.luaL_checkstring(L, 1);
-	try {
-		if (!fsHelper.makeDir(path)) {
-			throw path+": Access Denied";
-		}
-	} catch (e) {}
+	var path = fsHelper.getDisplayPath(C.luaL_checkstring(L, 1));
+	if (!fsHelper.makeDir(path)) {
+		C.lua_pushstring(L, path+": Access Denied");
+		C.lua_error(L);
+	}
 
 	return 0;
 }
 
 fsAPI.delete = function(L) {
-	var path = C.luaL_checkstring(L, 1);
+	var path = fsHelper.getDisplayPath(C.luaL_checkstring(L, 1));
 	if (!fsHelper.delete(path)) {
-		C.lua_pushstring(L, "Access denied");
+		C.lua_pushstring(L, path+": Access Denied");
 		C.lua_error(L);
 	}
 
@@ -290,7 +308,12 @@ fsAPI.delete = function(L) {
 fsAPI.move = function(L) {
 	var from = C.luaL_checkstring(L, 1);
 	var to = C.luaL_checkstring(L, 2);
-	fsHelper.move(from, to);
+	var r = fsHelper.move(from, to);
+	
+	if (r!=true) {
+		C.lua_pushstring(L, r);
+		C.lua_error(L);
+	}
 
 	return 0;
 }
@@ -299,8 +322,12 @@ fsAPI.move = function(L) {
 fsAPI.copy = function(L) {
 	var from = C.luaL_checkstring(L, 1);
 	var to = C.luaL_checkstring(L, 2);
-	fsHelper.copy(from, to);
-
+	var r = fsHelper.copy(from, to);
+	
+	if (r!=true) {
+		C.lua_pushstring(L, r);
+		C.lua_error(L);
+	}
 	return 0;
 }
 

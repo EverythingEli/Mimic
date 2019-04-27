@@ -8,6 +8,17 @@ Message from EveryOS: This is temporary maintenance. I plan on looking into
 
 A fully featured emulator for the [Minecraft](http://minecraft.net) mod [ComputerCraft](http://computercraft.info) that runs straight in your browser.
 
+PRs are usually welcome. Please PR if you have a solution to any of the following problems:
+* In scripts/apis/fs.js, there is some commented code for a JS implementation of fs.open. 
+It works for the first few opened handle, but lua5.1.js was not made for this, and will stop working after many files being opened.
+The problem, I believe, is in the handling of registering js functions.
+If you can fix this, please PR, as it will be a step closer to removing prebios.lua.
+* BrowserFS does not support links or symlinks.
+* Lua does not support C.luaL_error - meaning no stacktrace. This can quickly be modified in the 
+original repo as F("luaL_error", str_byte_ptr, [*LuaState]); or something like that and than compiled
+but it will only give the stacktrace, not the error.
+
+
 Here is the plan on updates:
 * Continue to update the graphics engine (TODO)
 * Use websockets to emulate the http.websocket api (TODO)
