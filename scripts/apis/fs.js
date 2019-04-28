@@ -347,5 +347,7 @@ fsAPI.getDrive = function(L) {
 
 
 fsAPI.getFreeSpace = function(L) {
-	return 0;
+	C.lua_pushnumber(L, config.maxStorageSize);
+	
+	return 1;
 }

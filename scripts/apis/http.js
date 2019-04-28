@@ -29,7 +29,7 @@ var httpAPI = {};
 httpAPI.request = function(L) {
 	var computer = core.getActiveComputer();
 	var url = C.luaL_checkstring(L, 1);
-	var postData = (C.lua_type(L, 1) != -1 && C.lua_type(L, 1) != C.LUA_TNIL)?C.luaL_checkstring(L, 1):null;
+	var postData = (C.lua_type(L, 2) != -1 && C.lua_type(L, 2) != C.LUA_TNIL)?C.luaL_checkstring(L, 1):null;
 	
 	var ud = httpHelper.checkURL(url);
 	if (!ud[0]) {
@@ -40,13 +40,26 @@ httpAPI.request = function(L) {
 	}
 	
 	r = new XMLHttpRequest();
-	r.addEventListener("load", function() { //Assumes success
-		computer.eventStack.push([
-			"http_bios", url, r.status, null, r.responseText
-		]);
+	r.addEventListener("load", function() {
+		var event = [
+			"http_bios", url, r.status, r.responseText
+		];
+		//From https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/getAllResponseHeaders
+		var headers = r.getAllResponseHeaders()
+		if (headers) {
+			headers.trim().split(/[\r\n]+/).forEach(function(line) {
+				var parts = line.split(': ');
+				event.push(parts.shift()); //Header
+				event.push(parts.join(': ')); //Value
+			});
+		}
+		//End From
+		computer.eventStack.push(event);
 	});
 	r.open(!postData?"GET":"POST", config.proxy.replace("%s", url), true);
-	r.setRequestHeader("x-requested-with", document.location);
+	if (config.withCorsAnywhereSupport) {
+		r.setRequestHeader("x-requested-with", "XMLHttpRequest");
+	}
 	r.send(postData);
 	
 	C.lua_pushboolean(L, true);
@@ -77,7 +90,9 @@ httpAPI.checkURL = function(L) {
 		]);
 	});
 	r.open("GET", config.proxy.replace("%s", url), true);
-	r.setRequestHeader("x-requested-with", document.location);
+	if (config.withCorsAnywhereSupport) {
+		r.setRequestHeader("x-requested-with", "XMLHttpRequest");
+	}
 	r.send();
 	
 	C.lua_pushboolean(L, true);

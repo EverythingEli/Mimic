@@ -42,7 +42,6 @@ xpcall = function(_fn, _fnErrorHandler)
 	if results[1] == true then
 		return true, unpack(results, 2)
 	else
-		console.log(results[2])
 		return false, _fnErrorHandler(results[2])
 	end
 end
@@ -98,8 +97,7 @@ local fsdo = fs.fsdo;
 fs.fsdo = nil;
 
 function fs.open(path, mode)
-	local containingFolder = path:sub(1, path:len() - fs.getName(path):len())
-	if fs.isDir(path) or not fs.isDir(containingFolder) or path:find("%s") then
+	if fs.isDir(path) then
 		return nil
 	end
 
@@ -216,13 +214,28 @@ function coroutine.yield(filter, ...)
 			table.remove(response, 2)
 		elseif response[1] == "http_bios" then
 			local oldResponse = response
-			local handle = wrapOS(oldResponse[5])
-			oldResponse[5] = nil
+			local handle = wrapOS(oldResponse[4])
+			local headers = {}
+			if #oldResponse>4 then
+				for i=5, #oldResponse, 2 do
+					local oname, nc, name = oldResponse[i], true, ""
+					for i=1, #oname do
+						local c = oname:sub(i,i)
+						name = name..(nc and c:upper() or c)
+						nc = false
+						if c == "-" then
+							nc = true
+						end
+					end
+					headers[name] = oldResponse[i+1]
+				end
+			end
+			oldResponse[4] = nil
 			handle.getResponseCode = function()
 				return oldResponse[3]
 			end
 			handle.getResponseHeaders = function()
-				return oldResponse[4]
+				return headers
 			end
 			if response[3] >= 200 and response[3] < 400 then
 				response = {"http_success", response[2], handle};

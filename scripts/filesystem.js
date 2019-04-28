@@ -144,9 +144,38 @@ filesystem.getName = function(path) {
 //Modifications
 //
 
+filesystem.makeDir = function(path, mode, position) {
+	path = filesystem.clean(path);
+	mode = mode || 0777;
+	position = position || 0;
+
+	var parts = path.split("/");
+
+	if (position >= parts.length) {
+		return true;
+	}
+
+	var directory = parts.slice(0, position + 1).join("/") || "/";
+	try {
+		fs.statSync(directory);
+		filesystem.makeDir(path, mode, position + 1);
+	} catch (e) {
+		try {
+			fs.mkdirSync(directory, mode);
+			filesystem.makeDir(path, mode, position + 1);
+		} catch (e) {
+			if (e.code != "EEXIST") {
+				throw e;
+			}
+
+			filesystem.makeDir(path, mode, position + 1);
+		}
+	}
+}
 
 filesystem.read = function(path) {
 	path = filesystem.clean(path);
+	
 
 	try {
 		var contents = null;
@@ -179,7 +208,7 @@ filesystem.write = function(path, contents) {
 
 filesystem.append = function(path, contents) {
 	path = filesystem.clean(path);
-
+	
 	if (!filesystem.isDir(path)) {
 		var folder = filesystem.clean(path+"..");
 		if (!filesystem.exists(folder)) {
@@ -187,35 +216,6 @@ filesystem.append = function(path, contents) {
 		}
 
 		fs.appendFileSync(path, contents);
-	}
-}
-
-filesystem.makeDir = function(path, mode, position) {
-	path = filesystem.clean(path);
-	mode = mode || 0777;
-	position = position || 0;
-
-	var parts = path.split("/");
-
-	if (position >= parts.length) {
-		return true;
-	}
-
-	var directory = parts.slice(0, position + 1).join("/") || "/";
-	try {
-		fs.statSync(directory);
-		filesystem.makeDir(path, mode, position + 1);
-	} catch (e) {
-		try {
-			fs.mkdirSync(directory, mode);
-			filesystem.makeDir(path, mode, position + 1);
-		} catch (e) {
-			if (e.code != "EEXIST") {
-				throw e;
-			}
-
-			filesystem.makeDir(path, mode, position + 1);
-		}
 	}
 }
 
