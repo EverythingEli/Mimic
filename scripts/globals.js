@@ -20,11 +20,11 @@ var config = {
 
 	"maxStorageSize": 2 * 1024 * 1024, // 2 MB
 	
-	"proxy": "https://thingproxy.freeboard.io/fetch/%s",
-	// An alternative is "https://cors-anywhere.herokuapp.com/%s",
+	"proxy": "https://cors-anywhere.herokuapp.com/%s",
+	// An alternative is "https://thingproxy.freeboard.io/fetch/%s",
 	// An alternative is "https://cors.io/?%s"
 	
-	//"withCorsAnywhereSupport": "true", //Uncomment this line to force x-requested-with
+	"withCorsAnywhereSupport": "true", //Uncomment this line to force x-requested-with
 };
 
 
