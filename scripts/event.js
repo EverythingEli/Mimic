@@ -37,25 +37,11 @@ events.paste = function(computer) {
 		var pasted = captureField.val();
 		captureField.val(">");
 
-		for (var i = 0; i < pasted.length; i++) {
-			var letter = pasted[i];
-			var keyCode = parseInt(globals.charCodes[letter]);
-			var code = globals.keyCodes[keyCode];
-
-			if (typeof(code) != "undefined") {
-				computer.eventStack.push(["key", code]);
-			}
-
-			if (typeof(letter) != "undefined") {
-				computer.eventStack.push(["char", letter]);
-			}
-		}
+		computer.eventStack.push(["char", pasted||""]);
 
 		captureField.blur();
 
-		if (pasted.length > 0) {
-			computer.resume();
-		}
+		computer.resume();
 
 		events.pasting = false;
 	}, 20);
@@ -85,9 +71,9 @@ events.activateTrigger = function(computer, character) {
 
 
 events.pushKey = function(computer, character, code) {
-	if (typeof(code) != "undefined") {
+	if (typeof code != "undefined") {
 		computer.eventStack.push(["key", code]);
-	} if (typeof(character) != "undefined") {
+	} if (typeof character != "undefined") {
 		computer.eventStack.push(["char", character]);
 	}
 
@@ -103,7 +89,7 @@ window.onkeydown = function(event) {
 	}
 
 	var computer = core.getActiveComputer();
-	if (typeof(computer) == "undefined") {
+	if (typeof computer == "undefined") {
 		return;
 	}
 
@@ -112,7 +98,7 @@ window.onkeydown = function(event) {
 		return;
 	}
 
-	var code = parseInt(globals.keyCodes[event.keyCode]);
+	var code = parseInt(globals.keyCodes[event.keyCode], 10);
 	var character = globals.characters.noshift[event.keyCode];
 	if (event.shiftKey || CapsLock.isOn()) {
 		character = globals.characters.shift[event.keyCode];
@@ -135,9 +121,10 @@ window.onkeydown = function(event) {
 	var shouldCancelKey =
 		event.keyCode == 8 ||
 		event.keyCode == 86 ||
+		event.keyCode == 17 ||
 		event.keyCode == 9;
 
-	if (!events.pasting && shouldCancelKey) {
+	if (!events.pasting) {         
 		event.preventDefault();
 	}
 }
@@ -168,7 +155,7 @@ window.onmousedown = function(event) {
 
 	var computer = core.getActiveComputer();
 
-	if (typeof(computer) != "undefined") {
+	if (typeof computer != "undefined") {
 		var loc = computer.getLocation();
 		var button = globals.buttons[event.button];
 		var x, y;
@@ -176,10 +163,10 @@ window.onmousedown = function(event) {
 		var ratio = size.height / size.width;
 
 		var localised = {
-			"x": (event.pageX - config.borderWidth - loc.x),
-			"y": (event.pageY - config.borderHeight - loc.y),
-			"w": (config.cellWidth * (window.innerWidth / size.width)),
-			"h": (config.cellHeight * (window.innerWidth * ratio / size.height)),
+			"x": event.pageX - config.borderWidth - loc.x,
+			"y": event.pageY - config.borderHeight - loc.y,
+			"w": config.cellWidth * (window.innerWidth / size.width),
+			"h": config.cellHeight * (window.innerWidth * ratio / size.height),
 		}
 
 		if ((window.innerWidth < size.width) || (window.innerWidth * ratio < size.height)) {
@@ -212,19 +199,19 @@ window.onmousemove = function(event) {
 
 	var computer = core.getActiveComputer();
 
-	if (typeof(computer) != "undefined") {
+	if (typeof computer != "undefined") {
 		var loc = computer.getLocation();
 
 		var localised = {
-			"x": (event.pageX - config.borderWidth - loc.x),
-			"y": (event.pageY - config.borderHeight - loc.y),
+			"x": event.pageX - config.borderWidth - loc.x,
+			"y": event.pageY - config.borderHeight - loc.y,
 		}
 
 		var x = Math.floor(localised.x / config.cellWidth) + 1;
 		var y = Math.floor(localised.y / config.cellHeight) + 1;
 		var button = globals.buttons[event.button];
 
-		var withinBounds = (x >= 1 && y >= 1 && x <= computer.width && y <= computer.height);
+		var withinBounds = x >= 1 && y >= 1 && x <= computer.width && y <= computer.height;
 		var differentFromPrevious =
 			events.prevMouseState.button != button ||
 			events.prevMouseState.x != x ||
@@ -248,7 +235,7 @@ window.onmousemove = function(event) {
 //
 
 
-isTouchDevice = function() {
+var isTouchDevice = function() {
 	return !!('ontouchstart' in window);
 }
 
@@ -261,7 +248,7 @@ events.onMobileInput = function() {
 	var input = $("#mobile-input");
 	var computer = core.getActiveComputer();
 
-	if (typeof(computer) != "undefined") {
+	if (typeof computer != "undefined") {
 		if (input.val().length < 1) {
 			input.val(">");
 
@@ -274,14 +261,14 @@ events.onMobileInput = function() {
 			var pushedSomething = false;
 			for (var i = 0; i < text.length; i++) {
 				var letter = text[i];
-				var code = globals.keyCodes[parseInt(globals.charCodes[letter])];
+				var code = globals.keyCodes[parseInt(globals.charCodes[letter], 10)];
 
-				if (typeof(code) != "undefined") {
+				if (typeof code != "undefined") {
 					computer.eventStack.push(["key", code]);
 					pushedSomething = true;
 				}
 
-				if (typeof(letter) != "undefined") {
+				if (typeof letter != "undefined") {
 					computer.eventStack.push(["char", letter]);
 					pushedSomething = true;
 				}
@@ -306,7 +293,7 @@ events.onMobileSubmit = function(event) {
 	input.val(">");
 
 	var computer = core.getActiveComputer();
-	if (typeof(computer) != "undefined") {
+	if (typeof computer != "undefined") {
 		computer.eventStack.push(["key", 28]);
 		computer.resume();
 	}
@@ -375,7 +362,7 @@ events.onmousewheel = function(e) {
 		compoundScroll = compoundScroll % 100;
 		computer.resume();
 
-		e.preventDefault();
+		//e.preventDefault();
 	}
 }
 
