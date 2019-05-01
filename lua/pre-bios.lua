@@ -1,4 +1,4 @@
-console = {}
+local console = {}
 console.log = print
 
 local debug = debug
@@ -10,14 +10,14 @@ newproxy = nil
 load = nil
 
 
+local coroutineClock = os.clock()
 xpcall = function(_fn, _fnErrorHandler)
 	assert(type(_fn) == "function",
 		"bad argument #1 to xpcall (function expected, got " .. type(_fn) .. ")")
 
 	local co = coroutine.create(_fn)
-	local coroutineClock = os.clock()
 	
-	function hook()
+	local function hook()
 		if os.clock() >= coroutineClock + 3.5 then
 			console.log("Lua: Too long without yielding")
 			error("Too long without yielding", 2)
@@ -60,36 +60,70 @@ pcall = function(_fn, ...)
 	)
 end
 
-local function wrapOS(content)
+local function wrapIS(content, byte)
 	local function checkClosed()
 		if not content then error("attempt to use a closed file") end
 	end
-	return {
-		close = function()
-			closed = true
-		end,
-		read = function()
-			checkClosed()
-			if content == "" then return nil end
-			local v = content:sub(1, 1)
-			content = content:sub(2)
-			return v
-		end,
-		readAll = function()
-			checkClosed()
-			if content == "" then return nil end
-			v = content
-			content = ""
-			return v
-		end,
-		readLine = function()
-			checkClosed()
-			if content == "" then return nil end
-			local lpos = (content:find("\n") or #content+1)-1
-			local v = content:sub(1, lpos)
-			content = content:sub(lpos+2)
-			return v
+	
+	local cursor = 0
+	local close = function()
+		if not content then error("Java Exception Thrown: java.lang.NullPointerException", -1) end
+		content = nil
+	end
+	local read = function(i)
+	    i = i or 1
+		checkClosed()
+		if cursor > #content then return nil end
+		cursor = cursor+i
+		return content:sub(cursor-i, cursor-1)
+	end
+	local readAll = function()
+		checkClosed()
+		if cursor > #content then return nil end
+		local v = content:sub(cursor, #content)
+		cursor = #content+1
+		return v
+	end
+	local readLine = function()
+		checkClosed()
+		if cursor > #content then return nil end
+		local mcontent = content:sub(cursor, #content)
+		local lpos = (mcontent:find("\n") or #mcontent+1)-1
+		cursor=cursor+lpos
+		return mcontent:sub(1, lpos)
+	end
+	if not byte then 
+        return {
+            close = close,
+            read = read,
+            readLine = readLine,
+            readAll = readAll
+        }
+	end
+	local seek = function(str, o)
+		checkClosed()
+		str = str:upper()
+		if str == "END" then
+		    cursor = #content+o
+		elseif str == "CUR" then
+		    cursor = cursor+o
+		elseif str == "SET" then
+		    cursor = o
+		else
+		    error("MIMIC_SEEK_ERROR", 2)
 		end
+	end
+	return {
+	    close = close,
+	    seek = seek,
+	    readLine = readLine,
+	    readAll = readAll,
+	    read = function(...)
+            local n = ...
+			local data = read(n or 1)
+            if n then return data end
+            return string.byte(data)
+	    end,
 	}
 end
 
@@ -100,69 +134,98 @@ function fs.open(path, mode)
 	if fs.isDir(path) then
 		return nil
 	end
-
-	if mode == "w" then
-		if fs.isReadOnly(path) then
-			return nil
-		end
-
-		local f, buffer = {}, ""
-		f = {
-			["write"] = function(str)
-				buffer = buffer .. tostring(str)
+	
+	local content = ""
+	local function checkClosed()
+		if not content then error("attempt to use a closed file") end
+	end
+	local function checkClosed2()
+		if not content then error("Java Exception Thrown: java.lang.NullPointerException", -1) end
+	end
+	
+	local function wrapOSb(path)
+        local cursor = #content
+		return {
+			["write"] = function(b)
+				checkClosed()
+				if cursor<0 then cursor = 0 end
+				if cursor>#content then
+				    content = content..(" "):rep(cursor-#content)
+				end
+				if type(b) == "string" then
+					content = content:sub(cursor, cursor) .. b 
+					   .. content:sub(cursor+1, #content)
+					cursor = cursor+#b
+				else
+					content = content:sub(cursor, cursor) .. string.char(b)
+					   .. content:sub(cursor+1, #content)
+					cursor = cursor + 1
+				end
 			end,
-			["writeLine"] = function(str)
-				buffer = buffer .. tostring(str) .. "\\n"
-			end,
-			["flush"] = function()
-				fsdo("w", path, "")
-				fsdo("a", path, buffer)
+			["seek"] = function(str, o)
+				checkClosed()
+				str = str:upper()
+				if str == "END" then
+				    cursor = #content+o
+				elseif str == "CUR" then
+				    cursor = cursor+o
+				elseif str == "SET" then
+				    cursor = o
+				else
+				    error("MIMIC_SEEK_ERROR", 2)
+				end
 			end,
 			["close"] = function()
+				checkClosed2()
 				fsdo("w", path, "")
-				fsdo("a", path, buffer)
-				f.write = nil
-				f.flush = nil
+				fsdo("a", path, content)	
+				
+				content = nil
 			end,
 		}
+	end
 
-		return f
-	elseif mode == "r" then
-		if not fs.exists(path) or fs.isDir(path) then
-			return nil
-		end
+	if mode == "r" or mode=="rb" then
+		if not fs.exists(path) or fs.isDir(path) then return end
 
 		local contents = fsdo("r", path, "")
-		if not contents then
-			return
-		end
+		if not contents then return end
 
-		return wrapOS(contents)
-	elseif mode == "a" then
-		if fs.isReadOnly(path) then
-			return nil
-		end
+		return wrapIS(contents, mode=="rb")
+	elseif mode == "w" or mode == "a" then
+	    if fs.isReadOnly(path) then return end
 
-		local f, buffer = {}, ""
-		f = {
+		return {
 			["write"] = function(str)
-				buffer = buffer .. tostring(str)
+				checkClosed()
+				content = content .. tostring(str)
 			end,
 			["writeLine"] = function(str)
-				buffer = buffer .. tostring(str) .. "\\n"
+				checkClosed()
+				content = content .. tostring(str) .. "\\n"
 			end,
 			["flush"] = function()
-				fsdo("a", path, buffer)
-				buffer = ""
+				checkClosed()
+				if mode == "w" then fsdo("w", path, "") end
+				fsdo("a", path, content)
+				content = ""
 			end,
 			["close"] = function()
-				fsdo("a", path, buffer)
-				f.write = nil
-				f.flush = nil
+				checkClosed2()
+				if mode == "w" then fsdo("w", path, "") end
+				fsdo("a", path, content)	
+				
+				content = nil
 			end,
 		}
-
-		return f
+	elseif mode == "wb" then
+		if not fs.isReadOnly(path) then return wrapOSb(path) end
+	elseif mode == "ab" then
+        if fs.isReadOnly(path) then return end
+	
+		content = fsdo("r", path, "") or ""
+		
+		return wrapOSb(path)
 	else
 		error("mode not supported")
 	end
@@ -214,7 +277,7 @@ function coroutine.yield(filter, ...)
 			table.remove(response, 2)
 		elseif response[1] == "http_bios" then
 			local oldResponse = response
-			local handle = wrapOS(oldResponse[4])
+			local handle = wrapIS(oldResponse[4])
 			local headers = {}
 			if #oldResponse>4 then
 				for i=5, #oldResponse, 2 do
@@ -240,7 +303,7 @@ function coroutine.yield(filter, ...)
 			if response[3] >= 200 and response[3] < 400 then
 				response = {"http_success", response[2], handle};
 			else
-				response = {"http_failure", response[2], "MIMIC_FAILURE"};
+				response = {"http_failure", response[2], "MIMIC_HTTP_FAILURE"};
 			end
 		end
 		if response[1] == filter or not filter then

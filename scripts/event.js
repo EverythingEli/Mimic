@@ -124,7 +124,7 @@ window.onkeydown = function(event) {
 		event.keyCode == 17 ||
 		event.keyCode == 9;
 
-	if (!events.pasting) {         
+	if (!events.pasting&&shouldCancelKey) {         
 		event.preventDefault();
 	}
 }
