@@ -65,7 +65,7 @@ local function wrapIS(content, byte)
 		if not content then error("attempt to use a closed file") end
 	end
 	
-	local cursor = 0
+	local cursor = 1
 	local close = function()
 		if not content then error("Java Exception Thrown: java.lang.NullPointerException", -1) end
 		content = nil
@@ -89,7 +89,7 @@ local function wrapIS(content, byte)
 		if cursor > #content then return nil end
 		local mcontent = content:sub(cursor, #content)
 		local lpos = (mcontent:find("\n") or #mcontent+1)-1
-		cursor=cursor+lpos
+		cursor=cursor+lpos+1
 		return mcontent:sub(1, lpos)
 	end
 	if not byte then 
