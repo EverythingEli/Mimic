@@ -1,22 +1,13 @@
-
-To Refactor
-- filesystem.copy
-- http.request
-
-
 To Do
-- Add grey border around computer
-- Add ROM programs
-- Add support for http.post
+- Support standard computers
 - Add simulated restone API
-- Add a favicon.ico
 - Add max storage size limit
 
 - Improve dropdown action menu design
+- Support PWA functionality and add a PWA-tailored UI
 
 - Fix action button appearing in narrow mode
-- Fix rm not working
-- Fix pasting
+- Fix pasting cursor
 - Fix startup scripts, allow use of shell API
 - Fix file downloading all previous files multiple times
 - Fix screenshot lagging

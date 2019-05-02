@@ -9,7 +9,10 @@ var code = {};
 
 
 code.getAll = function() {
-	return code.prebios + "\n" + code.bios;
+	return code.prebios + "\n"+
+	"loadstring([=====[" + 
+	   code.bios
+	+" ]=====], \"bios.lua\")()";
 }
 
 

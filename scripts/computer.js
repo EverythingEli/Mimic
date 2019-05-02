@@ -128,7 +128,7 @@ Computer.prototype.launch = function() {
 	var executableCode = code.getAll();
 
 	this.thread = C.lua_newthread(this.L);
-	C.luaL_loadbuffer(this.thread, executableCode, executableCode.length, "bios.lua");
+	C.luaL_loadbuffer(this.thread, executableCode, executableCode.length, "mimic.native");
 
 	this.alive = true;
 	this.startClock = Date.now();
