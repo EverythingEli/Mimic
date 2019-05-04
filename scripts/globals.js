@@ -21,9 +21,8 @@ var config = {
 	"maxStorageSize": 2 * 1024 * 1024, // 2 MB
 	
 	//Use %s to denote the requested URL
-	//"corsproxy": "https://cors-anywhere.herokuapp.com/%s",
+	"corsproxy": "https://cors-anywhere.herokuapp.com/%s",
 	//"corsproxy": "https://thingproxy.freeboard.io/fetch/%s",
-	"corsproxy": "https://cors.io/?%s",
 	//"corsproxy": "http://goxcors.appspot.com/cors?method=%m&url=%s",
 	//"corsproxy": "%s",
 	
