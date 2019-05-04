@@ -50,7 +50,7 @@ httpAPI.request = function(L) {
 			var event = [
 				"http_bios", url, r.status, r.responseText
 			];
-			//console.log(url, r.responseText)
+
 			//From https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/getAllResponseHeaders
 			var headers = r.getAllResponseHeaders()
 			if (headers) {
