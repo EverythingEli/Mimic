@@ -37,7 +37,7 @@ events.paste = function(computer) {
 		var pasted = captureField.val();
 		captureField.val(">");
 
-		computer.eventStack.push(["char", pasted||""]);
+		computer.eventStack.push(["paste", pasted||""]);
 
 		captureField.blur();
 
