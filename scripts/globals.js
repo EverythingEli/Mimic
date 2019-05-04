@@ -20,11 +20,18 @@ var config = {
 
 	"maxStorageSize": 2 * 1024 * 1024, // 2 MB
 	
-	"proxy": "https://cors-anywhere.herokuapp.com/%s",
-	// An alternative is "https://thingproxy.freeboard.io/fetch/%s",
-	// An alternative is "https://cors.io/?%s"
+	//Use %s to denote the requested URL
+	//"corsproxy": "https://cors-anywhere.herokuapp.com/%s",
+	//"corsproxy": "https://thingproxy.freeboard.io/fetch/%s",
+	"corsproxy": "https://cors.io/?%s",
+	//"corsproxy": "http://goxcors.appspot.com/cors?method=%m&url=%s",
+	//"corsproxy": "%s",
 	
 	"withCorsAnywhereSupport": "true", //Uncomment this line to force x-requested-with
+	
+	//"romtweaksenabled": "true", //For CC Contributors only, otherwise use the rom config
+	//"rom": "https://example.com/example.zip" //TODO
+	"bios": "lua/bios.lua"
 };
 
 

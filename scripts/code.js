@@ -10,9 +10,9 @@ var code = {};
 
 code.getAll = function() {
 	return code.prebios + "\n"+
-	"loadstring([=====[" + 
+	"local rtn, err = loadstring([=====[" + 
 	   code.bios
-	+" ]=====], \"bios.lua\")()";
+	+" ]=====], \"bios.lua\") if rtn then rtn() else console.log(err) end";
 }
 
 
@@ -24,5 +24,5 @@ code.getAll = function() {
 		return xhttp.responseText;
 	}
 	code.prebios = getfile("lua/pre-bios.lua");
-	code.bios = getfile("lua/bios.lua");
+	code.bios = getfile(config.bios);
 }

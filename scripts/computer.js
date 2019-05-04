@@ -75,6 +75,7 @@ Computer.prototype.setupFS = function() {
 	var rootPath = fsHelper.getCCPath("/", this.id);
 	if (!filesystem.isDir(rootPath)) {
 		filesystem.makeDir(rootPath);
+		if (config.romtweaksenabled) filesystem.copy("/rom", rootPath+"rom");
 	}
 }
 

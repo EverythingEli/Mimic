@@ -101,22 +101,8 @@ local function wrapIS(content, byte)
             readAll = readAll
         }
 	end
-	local seek = function(str, o)
-		checkClosed()
-		str = str:upper()
-		if str == "END" then
-		    cursor = #content+o
-		elseif str == "CUR" then
-		    cursor = cursor+o
-		elseif str == "SET" then
-		    cursor = o
-		else
-		    error("MIMIC_SEEK_ERROR", 2)
-		end
-	end
 	return {
 	    close = close,
-	    seek = seek,
 	    readLine = readLine,
 	    readAll = readAll,
 	    read = function(...)
@@ -151,7 +137,7 @@ function fs.open(path, mode)
 				checkClosed()
 				if cursor<0 then cursor = 0 end
 				if cursor>#content then
-				    content = content..(" "):rep(cursor-#content)
+				    content = content..(" "):rep(cursor-#content) --Doesn't seem to work?
 				end
 				if type(b) == "string" then
 					content = content:sub(cursor, cursor) .. b 
@@ -165,16 +151,17 @@ function fs.open(path, mode)
 			end,
 			["seek"] = function(str, o)
 				checkClosed()
-				str = str:upper()
-				if str == "END" then
+				if str == "end" then
 				    cursor = #content+o
-				elseif str == "CUR" then
+				elseif str == "cur" then
 				    cursor = cursor+o
-				elseif str == "SET" then
+				elseif str == "set" then
 				    cursor = o
 				else
-				    error("MIMIC_SEEK_ERROR", 2)
+				    error("bad argument #1 to 'seek' (invalid option '"..str.."'", 2)
 				end
+				
+				return cursor
 			end,
 			["close"] = function()
 				checkClosed2()
@@ -203,13 +190,13 @@ function fs.open(path, mode)
 			end,
 			["writeLine"] = function(str)
 				checkClosed()
-				content = content .. tostring(str) .. "\\n"
+				content = content .. tostring(str) .. "\n"
 			end,
 			["flush"] = function()
 				checkClosed()
 				if mode == "w" then fsdo("w", path, "") end
 				fsdo("a", path, content)
-				content = ""
+				if mode == "a" then content = "" end
 			end,
 			["close"] = function()
 				checkClosed2()
@@ -304,7 +291,7 @@ function coroutine.yield(filter, ...)
 			if response[3] >= 200 and response[3] < 400 then
 				response = {"http_success", response[2], handle};
 			else
-				response = {"http_failure", response[2], "MIMIC_HTTP_FAILURE"};
+				response = {"http_failure", response[2], "Unknown host", handle};
 			end
 		end
 		if response[1] == filter or not filter then

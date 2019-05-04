@@ -253,6 +253,7 @@ filesystem.delete = function(path) {
 
 
 filesystem.copy = function(from, to) {
+	console.log(from)
 	from = filesystem.clean(from);
 	to = filesystem.clean(to);
 
@@ -268,8 +269,6 @@ filesystem.copy = function(from, to) {
 	} else {
 		filesystem.write(to, filesystem.read(from));
 	}
-	
-	sidebar.update();
 
 	return true;
 }

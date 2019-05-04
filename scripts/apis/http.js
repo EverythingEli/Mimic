@@ -39,28 +39,38 @@ httpAPI.request = function(L) {
 		return 2;
 	}
 	
-	r = new XMLHttpRequest();
-	r.addEventListener("load", function() {
-		var event = [
-			"http_bios", url, r.status, r.responseText
-		];
-		//From https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/getAllResponseHeaders
-		var headers = r.getAllResponseHeaders()
-		if (headers) {
-			headers.trim().split(/[\r\n]+/).forEach(function(line) {
-				var parts = line.split(': ');
-				event.push(parts.shift()); //Header
-				event.push(parts.join(': ')); //Value
-			});
+	var cr
+	cr = function() {
+		r = new XMLHttpRequest();
+		r.onload = function() {
+			if (r.status == 0) {
+				setTimeout(cr, 1000);
+				return;
+			}
+			var event = [
+				"http_bios", url, r.status, r.responseText
+			];
+			//From https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/getAllResponseHeaders
+			var headers = r.getAllResponseHeaders()
+			if (headers) {
+				headers.trim().split(/[\r\n]+/).forEach(function(line) {
+					var parts = line.split(': ');
+					event.push(parts.shift()); //Header
+					event.push(parts.join(': ')); //Value
+				});
+			}
+			//End From
+			computer.eventStack.push(event);
+		};
+		var mode = !postData?"GET":"POST"
+		r.open(mode, config.corsproxy.replace("%s", url).replace("%m", mode), true);
+		if (config.withCorsAnywhereSupport) {
+			r.setRequestHeader("x-requested-with", "XMLHttpRequest");
 		}
-		//End From
-		computer.eventStack.push(event);
-	});
-	r.open(!postData?"GET":"POST", config.proxy.replace("%s", url), true);
-	if (config.withCorsAnywhereSupport) {
-		r.setRequestHeader("x-requested-with", "XMLHttpRequest");
+		r.send(postData);
 	}
-	r.send(postData);
+	
+	cr();
 	
 	C.lua_pushboolean(L, true);
 
@@ -89,7 +99,7 @@ httpAPI.checkURL = function(L) {
 			"http_check", url, (r.status >= 200 && r.status < 400)
 		]);
 	});
-	r.open("GET", config.proxy.replace("%s", url), true);
+	r.open("GET", config.corsproxy.replace("%s", url), true);
 	if (config.withCorsAnywhereSupport) {
 		r.setRequestHeader("x-requested-with", "XMLHttpRequest");
 	}

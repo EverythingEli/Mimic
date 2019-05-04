@@ -19,7 +19,7 @@ var fsHelper = {}
 fsHelper.getCCPath = function(path, computerID) {
 	if (computerID == undefined) {computerID = core.getActiveComputer().id};
 	var rpath = filesystem.clean(path);
-	if (!(rpath.substring(0,5)=="/rom/")) {
+	if (config.romtweaksenabled||!(rpath.substring(0,5)=="/rom/")) {
 		rpath = "/computers/"+computerID+"/"+rpath;
 	}
 	
@@ -35,7 +35,7 @@ fsHelper.getDisplayPath = function(path) {
 fsHelper.listFiles = function(path) {
 	path = filesystem.clean(path)
 	var files = filesystem.list(fsHelper.getCCPath(path));
-	if (path == "/") {
+	if (path == "/" && !config.romtweaksenabled) {
 		files.push("rom");
 	}
 	
@@ -141,7 +141,7 @@ fsHelper.fsdo = function(m, f, d) {
 
 fsHelper.isReadOnly = function(path) {
 	path = filesystem.clean(path);
-	return path.substring(0, 5)=="/rom/";
+	return !config.romtweaksenabled && path.substring(0, 5)=="/rom/";
 }
 
 fsHelper.makeDir = function(path) {
@@ -172,7 +172,10 @@ fsHelper.copy = function(from, to) {
 	
 	if (fsHelper.isReadOnly(oT)) return oT+": Access denied";
 	if (!fsHelper.exists(oF)) return oF+": No such file";
-	if (filesystem.copy(from, to)) return true;
+	if (filesystem.copy(from, to)) {
+		sidebar.update(); 
+		return true
+	};
 	return oT+": File exists";
 }
 
@@ -266,7 +269,8 @@ fsAPI.fsdo = function(L) {
 	var m = C.luaL_checkstring(L, 1);
 	var f = C.luaL_checkstring(L, 2);
 	var d = C.luaL_checkstring(L, 3);
-	C.lua_pushstring(L, fsHelper.fsdo(m, f, d));
+	var val = fsHelper.fsdo(m, f, d)
+	C.lua_pushstring(L, val);
 	
 	return 1;
 }

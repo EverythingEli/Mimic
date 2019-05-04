@@ -3,7 +3,7 @@
 //  1lann and GravityScore
 //
 
-
+//TODO: Show folders before files
 
 var sidebar = {};
 
