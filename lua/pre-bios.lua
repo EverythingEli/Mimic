@@ -315,7 +315,7 @@ function coroutine.yield(filter, ...)
 				response = {"http_failure", response[2], "Unknown host", handle};
 			end
 		end
-		if response[1] == filter or not filter then
+		if (response[1] == filter) or (response[1] == "terminate") or not filter then
 			return unpack(response)
 		end
 	end
