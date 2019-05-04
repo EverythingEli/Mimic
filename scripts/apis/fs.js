@@ -32,9 +32,17 @@ fsHelper.getDisplayPath = function(path) {
 	return path;
 }
 
+fsHelper.getPathNoROM = function(name) {
+	if (name.substring(0, 5)=="/rom/") {
+		name = name.substring(4, name.length);
+	}
+	return name.substring(0, name.length-1);
+}
+
 fsHelper.listFiles = function(path) {
 	path = filesystem.clean(path)
 	var files = filesystem.list(fsHelper.getCCPath(path));
+	if (files === false) return false;
 	if (path == "/" && !config.romtweaksenabled) {
 		files.push("rom");
 	}
@@ -112,10 +120,7 @@ fsHelper.fwrappers["r"] = function(file) {
 
 fsHelper.open = function(file, mode) { //TODO: lock files
 	if (!fsHelper.exists(file)||fsHelper.isDir(file)) {
-		var name = fs.clean(file);
-		if (name.substring(0, 5)=="/rom/") {
-			name = name.substring(4, name.length);
-		}
+		var name = fsHelper.getPathNoROM(filesystem.clean(file));
 		return [null, name+": No such file"];
 	}
 	if (!fsHelper.fwrappers[mode]) {
@@ -216,6 +221,11 @@ fsAPI.list = function(L) {
 
 		return 1;
 	} else {
+		var name = fsHelper.getPathNoROM(filesystem.clean(path));
+		
+		C.lua_pushstring(L, name+": Not a directory");
+		C.lua_error(L);
+		
 		return 0;
 	}
 }

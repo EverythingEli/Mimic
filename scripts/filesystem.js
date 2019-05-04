@@ -96,6 +96,8 @@ filesystem.clean = function(path) {
 
 filesystem.list = function(path) {
 	path = filesystem.clean(path);
+	
+	if (!filesystem.isDir(path)) return false;
 
 	var files;
 	try {
