@@ -82,7 +82,7 @@ Computer.prototype.setupFS = function() {
 
 Computer.prototype.installAPIs = function() {
 	var apis = {
-		"bit32": bitAPI,
+		"bit32": bit32API,
 		"fs": fsAPI,
 		"http": httpAPI,
 		"os": osAPI,

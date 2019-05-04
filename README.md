@@ -22,11 +22,11 @@ but it will only give the stacktrace, not the error.
 Here is the plan on updates:
 * Continue to update the graphics engine (TODO)
 * Use websockets to emulate the http.websocket api (TODO)
-* Support more `bit` functions
 * Configuration screen (TODO)
 * Download folders (TODO)
 * Upload files/folders (TODO)
 * Remove pre-bios (Not Immediate)
+* Screen Resize (in both contexts, resolution and canvas size) (TODO)
 * notes/todo.txt (TODO)
 * Anything I forgot (TODO)
 

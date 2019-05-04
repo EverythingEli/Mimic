@@ -1,3 +1,6 @@
+_HOST = "ComputerCraft 1.80pr1.12 (Minecraft 1.12.2)"
+_CC_DEFAULT_SETTINGS = ""
+
 local console = {}
 console.log = print
 
@@ -9,11 +12,20 @@ module = nil
 package = nil
 newproxy = nil
 
+local function terror(exp, v, a, n, r)
+	if exp ~= type(v) then
+		if a then
+			error("bad argument #"..a.." to "..n.." ("..(r or exp).." expected, got " .. type(v) .. ")", 3)
+		else
+			error("bad argument: "..(r or exp).." expected, got "..type(v), 3)
+			error("bad argument: "..(r or exp).." expected, got "..type(v), 3)
+		end
+	end
+end
 
 local coroutineClock = os.clock()
 xpcall = function(_fn, _fnErrorHandler)
-	assert(type(_fn) == "function",
-		"bad argument #1 to xpcall (function expected, got " .. type(_fn) .. ")")
+	terror("function", _fn, 1, "xpcall")
 
 	local co = coroutine.create(_fn)
 	
@@ -47,8 +59,7 @@ xpcall = function(_fn, _fnErrorHandler)
 	end
 end
 pcall = function(_fn, ...)
-	assert(type(_fn) == "function",
-		"bad argument #1 to pcall (function expected, got " .. type(_fn) .. ")")
+	terror("function", _fn, 1, "pcall")
 
 	local args = {...}
 	return xpcall(
@@ -59,6 +70,16 @@ pcall = function(_fn, ...)
 			return _error
 		end
 	)
+end
+
+__inext = function(tbl, i)
+	terror("table", tbl)
+	terror("number", i, nil, nil, "integer")
+	if i ~= math.floor(i) then
+		terror("integer", i, nil, nil, "integer")
+	end
+	
+	return rawget(tbl, i+1)
 end
 
 local function wrapIS(content, byte)
