@@ -30,9 +30,9 @@ httpHelper.checkURL = function(url) {
 
 httpHelper.checkWSURL = function(url) {
 	//Handwrote this
-	var ios = url.indexOf(":")+2;
+	var ios = url.indexOf(":");
 	if (!ios) return [false, "URL malformed"];
-	var d = url.substring(0, ios);
+	var d = url.substring(0, ios+2);
 	if (!(d=="ws://"||d=="wss://")) return [false, "URL malformed"];
 	
 	//Found this online
@@ -49,7 +49,9 @@ var httpAPI = {};
 httpAPI.request = function(L) {
 	var computer = core.getActiveComputer();
 	var url = C.luaL_checkstring(L, 1);
-	var postData = (C.lua_type(L, 2) != -1 && C.lua_type(L, 2) != C.LUA_TNIL)?C.luaL_checkstring(L, 1):null;
+	var postData = (C.lua_type(L, 2) != -1 && C.lua_type(L, 2) != C.LUA_TNIL)?C.luaL_checkstring(L, 2):null;
+	
+	console.log(postData)
 	
 	var ud = httpHelper.checkURL(url);
 	if (!ud[0]) {
@@ -97,7 +99,9 @@ httpAPI.request = function(L) {
 		};
 		
 		var mode = !postData?"GET":"POST"
+		console.log(mode)
 		r.open(mode, config.corsproxy.replace("%s", url).replace("%m", mode), true);
+		if (mode == "POST") r.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 		if (config.withCorsAnywhereSupport) {
 			r.setRequestHeader("x-requested-with", "XMLHttpRequest");
 		}
@@ -112,7 +116,16 @@ httpAPI.request = function(L) {
 }
 
 httpAPI.websocket = function(L) {
+	var computer = core.getActiveComputer();
+	var url = C.luaL_checkstring(L, 1);
 	
+	var ud = httpHelper.checkURL(url);
+	if (!ud[0]) {
+		C.lua_pushboolean(L, false);
+		C.lua_pushstring(L, ud[1]);
+		
+		return 2;
+	}
 }
 
 httpAPI.checkURL = function(L) {
