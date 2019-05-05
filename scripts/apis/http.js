@@ -9,11 +9,31 @@ var httpHelper = {}
 
 httpHelper.checkURL = function(url) {
 	//Handwrote this
+	if (!navigator.onLine) {
+		return [false, "Unknown host"];
+	}
+	
 	var ios = url.indexOf(":");
 	if (!ios) return [false, "URL malformed"];
 	var d = url.substring(0, ios);
 	if (!(d=="http"||d=="https")) return [false, "URL malformed"];
 	if (url.substring(ios+1, ios+3)!="//") return [false, "Domain not permitted"];
+	
+	//Found this online
+	try {
+		new URL(url);
+		return [true];
+	} catch (e) {
+		return [false, "URL malformed"];  
+	}
+}
+
+httpHelper.checkWSURL = function(url) {
+	//Handwrote this
+	var ios = url.indexOf(":")+2;
+	if (!ios) return [false, "URL malformed"];
+	var d = url.substring(0, ios);
+	if (!(d=="ws://"||d=="wss://")) return [false, "URL malformed"];
 	
 	//Found this online
 	try {
@@ -41,8 +61,20 @@ httpAPI.request = function(L) {
 
 	var cr
 	cr = function() {
+		var tocanceled = false;
+		setTimeout(function() {
+			if (tocanceled) return;
+			tocanceled = true;
+			computer.eventStack.push([
+				"http_bios", url, 0
+			]);
+		}, 3000);
+		
 		var r = new XMLHttpRequest();
 		r.onload = function() {
+			if (tocanceled) return;
+			tocanceled = true;
+			
 			if (r.status == 0) {
 				setTimeout(cr, 1000);
 				return;
@@ -63,6 +95,7 @@ httpAPI.request = function(L) {
 			//End From
 			computer.eventStack.push(event);
 		};
+		
 		var mode = !postData?"GET":"POST"
 		r.open(mode, config.corsproxy.replace("%s", url).replace("%m", mode), true);
 		if (config.withCorsAnywhereSupport) {
@@ -78,13 +111,22 @@ httpAPI.request = function(L) {
 	return 1;
 }
 
-httpAPI.websocket = function() {
+httpAPI.websocket = function(L) {
 	
 }
 
 httpAPI.checkURL = function(L) {
 	var computer = core.getActiveComputer();
 	var url = C.luaL_checkstring(L, 1);
+	
+	var tocanceled = false;
+	setTimeout(function() {
+		if (tocanceled) return;
+		tocanceled = true;
+		computer.eventStack.push([
+			"http_check", url, false, "Unknown host"
+		]);
+	}, 3000);
 	
 	var ud = httpHelper.checkURL(url);
 	if (!ud[0]) {
@@ -93,12 +135,18 @@ httpAPI.checkURL = function(L) {
 		
 		return 2;
 	}
-	
+		
 	r = new XMLHttpRequest();
 	r.addEventListener("load", function() {
-		computer.eventStack.push([
-			"http_check", url, (r.status >= 200 && r.status < 400)
-		]);
+		if (tocanceled) return;
+		tocanceled = true;
+		
+		var good = r.status >= 200 && r.status < 400;
+		var event = [
+			"http_check", url, good
+		];
+		if (!good) event.push("Invalid URL")
+		computer.eventStack.push(event);
 	});
 	r.open("GET", config.corsproxy.replace("%s", url), true);
 	if (config.withCorsAnywhereSupport) {

@@ -312,7 +312,7 @@ function coroutine.yield(filter, ...)
 			if response[3] >= 200 and response[3] < 400 then
 				response = {"http_success", response[2], handle};
 			else
-				response = {"http_failure", response[2], "Unknown host", handle};
+				response = {"http_failure", response[2], "Unknown host", (response[3]~= 0 and handle) or nil};
 			end
 		end
 		if (response[1] == filter) or (response[1] == "terminate") or not filter then
