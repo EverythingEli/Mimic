@@ -166,7 +166,8 @@ Computer.prototype.pushEventStackToThread = function() {
 			C.lua_pushboolean(this.thread, argument ? 1 : 0);
 		} else if (typeof(argument) == "object") {
 			C.lua_pushstring(this.thread, core.serializeTable(argument));
-		} else {
+		} else if (argument) {
+			console.log(argument)
 			C.lua_pushstring(this.thread, argument.toString());
 		}
 	}

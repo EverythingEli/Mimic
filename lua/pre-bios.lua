@@ -278,6 +278,9 @@ os.queueEvent = function(e, ...)
 	nativeQueue(e, unpack(args))
 end
 
+local nativeWS = http.wsdo
+http.wsdo = nil
+
 local nativeYield = coroutine.yield
 function coroutine.yield(filter, ...)
 	while true do
@@ -314,6 +317,16 @@ function coroutine.yield(filter, ...)
 			else
 				response = {"http_failure", response[2], "Unknown host", (response[3]~= 0 and handle) or nil};
 			end
+		end
+		if response[1] == "websocket_bios" and not response[2] then
+			table.remove(response, 2)
+		elseif response[1] == "webosocket_bios" then
+			local id = response[3]
+			local handle = {}
+			
+			--console.log(response[2])
+			
+			response = {"websocket_success", response[2], handle}
 		end
 		if (response[1] == filter) or (response[1] == "terminate") or not filter then
 			return unpack(response)

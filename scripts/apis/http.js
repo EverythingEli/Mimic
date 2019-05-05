@@ -6,6 +6,7 @@
 
 
 var httpHelper = {}
+httpHelper.websockets = []
 
 httpHelper.checkURL = function(url) {
 	//Handwrote this
@@ -32,7 +33,7 @@ httpHelper.checkWSURL = function(url) {
 	//Handwrote this
 	var ios = url.indexOf(":");
 	if (!ios) return [false, "URL malformed"];
-	var d = url.substring(0, ios+2);
+	var d = url.substring(0, ios+3);
 	if (!(d=="ws://"||d=="wss://")) return [false, "URL malformed"];
 	
 	//Found this online
@@ -44,6 +45,7 @@ httpHelper.checkWSURL = function(url) {
 	}
 }
 
+//HTTP API
 var httpAPI = {};
 
 httpAPI.request = function(L) {
@@ -51,9 +53,8 @@ httpAPI.request = function(L) {
 	var url = C.luaL_checkstring(L, 1);
 	var postData = (C.lua_type(L, 2) != -1 && C.lua_type(L, 2) != C.LUA_TNIL)?C.luaL_checkstring(L, 2):null;
 	
-	console.log(postData)
-	
 	var ud = httpHelper.checkURL(url);
+	//TODO: Header support
 	if (!ud[0]) {
 		C.lua_pushboolean(L, false);
 		C.lua_pushstring(L, ud[1]);
@@ -119,13 +120,42 @@ httpAPI.websocket = function(L) {
 	var computer = core.getActiveComputer();
 	var url = C.luaL_checkstring(L, 1);
 	
-	var ud = httpHelper.checkURL(url);
+	var ud = httpHelper.checkWSURL(url);
 	if (!ud[0]) {
 		C.lua_pushboolean(L, false);
 		C.lua_pushstring(L, ud[1]);
 		
 		return 2;
 	}
+	
+	var ws = new WebSocket(url);
+	//Sadly, header support will not be possible here
+	var closeDisabled = false;
+	ws.onerror = function(event){
+		var err = "Invalid handshake response: Unknown";
+		computer.eventStack.push(["websocket_failure", url, err]);
+		closeDisabled = true;
+	}
+	ws.onopen = function(){
+		computer.eventStack.push(["websocket_bios", url, httpHelper.websockets.length]);
+		httpHelper.websockets[httpHelper.websockets.length] = ws;
+	}
+	ws.onmessage = function(event){
+		computer.eventStack.push(["websocket_message", url, event.data]);
+	}
+	ws.onclose = function(event){
+		console.log("D")
+		if (!closeDisabled) {
+			computer.eventStack.push(["websocket_close", url]);
+		}
+	}
+	
+	C.lua_pushboolean(L, true);
+	
+	return 1;
+}
+httpAPI.wsdo = function(L) {
+	
 }
 
 httpAPI.checkURL = function(L) {
