@@ -146,12 +146,12 @@ window.onkeyup = function(event) {
 //
 
 
-window.onmousedown = function(event) {
+var hmouse = function(event, s) {
 	if (sidebar.typeOfSelected() != "computer") {
 		return;
 	}
 
-	events.mouseDown = true;
+	events.mouseDown = s;
 
 	var computer = core.getActiveComputer();
 
@@ -178,7 +178,7 @@ window.onmousedown = function(event) {
 		}
 
 		if (x >= 1 && y >= 1 && x <= computer.width && y <= computer.height) {
-			computer.eventStack.push(["mouse_click", button, x, y]);
+			computer.eventStack.push([s?"mouse_click":"mouse_up", button, x, y]);
 			computer.resume();
 		}
 
@@ -186,9 +186,13 @@ window.onmousedown = function(event) {
 	}
 }
 
+window.onmousedown = function(event) {
+	hmouse(event, true);
+}
+
 
 window.onmouseup = function(event) {
-	events.mouseDown = false;
+	hmouse(event, false);
 }
 
 
