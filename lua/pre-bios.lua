@@ -320,11 +320,11 @@ function coroutine.yield(filter, ...)
 		end
 		if response[1] == "websocket_bios" and not response[2] then
 			table.remove(response, 2)
-		elseif response[1] == "webosocket_bios" then
+		elseif response[1] == "websocket_bios" then
 			local id = response[3]
 			local handle = {}
 			
-			--console.log(response[2])
+			
 			
 			response = {"websocket_success", response[2], handle}
 		end
