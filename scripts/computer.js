@@ -51,6 +51,18 @@ Computer.prototype.reset = function() {
 	this.colors = {};
 	this.colors.background = "0";
 	this.colors.foreground = "f";
+	
+	if (this.websockets) {
+		for (var id in this.websockets) {
+			i=this.websockets[id];
+			if (i.open) {
+				try {
+					i.socket.close();
+				} catch (e) {console.log("A")}
+			}
+		}
+	}
+	this.websockets = {};
 
 	this.shouldShutdown = false;
 	this.shouldReboot = false;

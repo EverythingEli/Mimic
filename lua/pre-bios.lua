@@ -278,7 +278,7 @@ os.queueEvent = function(e, ...)
 	nativeQueue(e, unpack(args))
 end
 
-local nativeWS = http.wsdo
+local wsdo = http.wsdo
 http.wsdo = nil
 
 local nativeYield = coroutine.yield
@@ -324,7 +324,21 @@ function coroutine.yield(filter, ...)
 			local id = response[3]
 			local handle = {}
 			
+			local function checkClosed()
+				if not wsdo(id, "cc") then error("attempt to use a closed file") end
+			end
+			local function checkClosed2()
+				if not wsdo(id, "cc") then error("Java Exception Thrown: java.lang.NullPointerException", -1) end
+			end
 			
+			handle.close = function()
+				checkClosed2()
+				wsdo(id, "close")
+			end
+			handle.send = function(d)
+				checkClosed()
+				wsdo(id, "send", d)
+			end
 			
 			response = {"websocket_success", response[2], handle}
 		end

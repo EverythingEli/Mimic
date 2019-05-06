@@ -6,7 +6,6 @@
 
 
 var httpHelper = {}
-httpHelper.websockets = []
 
 httpHelper.checkURL = function(url) {
 	//Handwrote this
@@ -128,6 +127,8 @@ httpAPI.websocket = function(L) {
 		return 2;
 	}
 	
+	var websockets = computer.websockets;
+	
 	var ws = new WebSocket(url);
 	//Sadly, header support will not be possible here
 	var closeDisabled = false;
@@ -137,14 +138,17 @@ httpAPI.websocket = function(L) {
 		closeDisabled = true;
 	}
 	ws.onopen = function(){
-		computer.eventStack.push(["websocket_bios", url, httpHelper.websockets.length]);
-		httpHelper.websockets[httpHelper.websockets.length] = ws;
+		computer.eventStack.push(["websocket_bios", url, websockets.length]);
+		var l = websockets.length;
+		websockets[l] = {open:true, socket:ws, id:l};
+		websockets[ws] = websockets[l];
 	}
 	ws.onmessage = function(event){
 		computer.eventStack.push(["websocket_message", url, event.data]);
 	}
 	ws.onclose = function(event){
-		console.log("D")
+		if (!websockets[ws]) return;
+		websockets[ws].open = false;
 		if (!closeDisabled) {
 			computer.eventStack.push(["websocket_close", url]);
 		}
@@ -155,7 +159,31 @@ httpAPI.websocket = function(L) {
 	return 1;
 }
 httpAPI.wsdo = function(L) {
+	var computer = core.getActiveComputer();
+	var websockets = computer.websockets;
 	
+	var id = C.luaL_checknumber(L, 1);
+	var m = C.luaL_checkstring(L, 2);
+	
+	var mwso = websockets[id];
+	var mws = websockets[id].socket;
+	
+	if (m == "cc") {
+		C.lua_pushboolean(L, mwso.open);
+		
+		return 1;
+	}
+	if (m == "send") {
+		var d = C.luaL_checkstring(L, 3);
+		mws.send(d);
+		
+		return 0;
+	}
+	if (m == "close") {
+		mws.close();
+		
+		return 0;
+	}
 }
 
 httpAPI.checkURL = function(L) {
