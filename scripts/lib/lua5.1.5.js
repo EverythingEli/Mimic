@@ -882,7 +882,7 @@ var Lua5_1 = Lua5_1 || {};
         return 0;
     }
     var TOTAL_STACK = Module['TOTAL_STACK'] || 5242880;
-    var TOTAL_MEMORY = Module['TOTAL_MEMORY'] || 16777216;
+    var TOTAL_MEMORY = Module['TOTAL_MEMORY'] || 2*1024*1024*1024;
     var FAST_MEMORY = Module['FAST_MEMORY'] || 2097152;
     // Initialize the runtime's memory
     // check for full engine support (use string 'subarray' to avoid closure compiler confusion)

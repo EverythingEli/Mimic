@@ -35,6 +35,8 @@ events.paste = function(computer) {
 
 	setTimeout(function() {
 		var pasted = captureField.val();
+		console.log(pasted.find("\n"))
+		
 		captureField.val(">");
 
 		computer.eventStack.push(["paste", pasted||""]);
