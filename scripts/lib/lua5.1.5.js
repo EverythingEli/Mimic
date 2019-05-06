@@ -13413,18 +13413,6 @@ var Lua5_1 = Lua5_1 || {};
         }
 
         function ef(b, d, e, f) { 
-			//1lann Start
-            var computer = core.getActiveComputer();
-            if (computer && typeof(computer) != "undefined" && Date.now() - computer.coroutineClock >= 5000) {
-                console.log("Too long without yielding");
-
-                render.bsod("FATAL : THREAD UNRESPONSIVE",
-                    ["The main thread is unresponsive!", "Something has gone drastically wrong."]);
-                computer.hasErrored = true;
-                exit(1);
-                return 0;
-            } 
-			//1lann end
             b = b | 0;
             d = d | 0;
             e = e | 0;
