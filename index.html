@@ -38,6 +38,7 @@
 			<button id="reboot-btn" class="btn btn-default">Reboot</button>
 			<a id="screenshot-btn" class="btn btn-default">Take Screenshot</a>
 			<button id="fullscreen-btn" class="btn btn-default">Enter Fullscreen</button>
+			<button data-toggle="modal" data-target="#cpudel-modal" class="btn btn-default">Delete Computer</button>
 			<button data-toggle="modal" data-target="#credits-modal" class="btn btn-default">Credits</button>
 		</div>
 
@@ -95,6 +96,23 @@
 					<br>
 
 					<a href="https://github.com/jasonthekitten/Mimic" target="_blank">GitHub Repository</a><br>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal fade" id="cpudel-modal" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						&times;
+					</button>
+
+					<h3 class="modal-title">Delete Computer?</h3>
+				</div>
+				<div class="modal-body">
+					<button id="delete-btn" class="btn btn-default">Delete!</button>
 				</div>
 			</div>
 		</div>

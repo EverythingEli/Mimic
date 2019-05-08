@@ -282,6 +282,10 @@ ui.beforeLoad = function() {
 	$("#fullscreen-btn").click(function() {
 		ui.toggleFullscreen();
 	});
+	
+	$("#delete-button").click(function(){
+		$("#cpudel-modal").modal("hide");
+	});
 
 	window.onresize();
 }
@@ -345,6 +349,10 @@ window.onresize = function() {
 			$(".computer-canvas").css({
 				"left": location.x + "px",
 				"top": location.y + "px"
+			});
+			$("#mobile-keyboard").css({
+				"left": location.x + "px",
+				"top": location.y + canvas.height + "px"
 			});
 		}
 	}

@@ -118,13 +118,18 @@ window.onkeydown = function(event) {
 		events.pushKey(computer, character, code);
 	}
 
-	var shouldCancelKey =
+	var shouldCancelKey = //Convert to array?
 		event.keyCode == 8 ||
 		event.keyCode == 86 ||
 		event.keyCode == 17 ||
-		event.keyCode == 9;
+		event.keyCode == 9 ||
+		(event.keyCode>=112 && event.keyCode <=123);
 
-	if (!events.pasting&&(shouldCancelKey||(event.ctrlKey&&!event.shiftKey))) {         
+	if (
+		!events.pasting &&
+		 (shouldCancelKey||
+		 (event.ctrlKey&&!event.shiftKey))
+	) {
 		event.preventDefault();
 	}
 }

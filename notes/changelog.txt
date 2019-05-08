@@ -1,0 +1,5 @@
+5/8/2019
+* Continue work on mobile keyboard
+
+Until 5/8/2019
+* Recently forked Mimic, many unlogged changes

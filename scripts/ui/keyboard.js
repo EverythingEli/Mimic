@@ -40,8 +40,11 @@ UIKey.prototype.onMouseUp = function() {
 }
 
 {
-    var br = function(){mobileKeyboardBox.add("<br/>")}
+    var br = function(){
+		mobileKeyboardBox.add("<br/>").appendTo(mobileKeyboardBox);
+	}
 	
+	br();
 	new UIKey("paste");
 	$("#keyboard-key-paste").click(function() {
 		var computer = core.getActiveComputer();
@@ -51,17 +54,20 @@ UIKey.prototype.onMouseUp = function() {
 		} catch (e) {}
 		computer.eventStack.push(["key_up", text]);
 	});
-    br()
+    br();br();
 	
     new UIKey("esc", 27, 1);
 	br();
     new UIKey("tab", 9, 15);
+	br();
     new UIKey("ctrl", 17, 29);
+	new UIKey("menu", 91, 219);
     new UIKey("alt", 18, 56);
     new UIKey("<", 37, 203);
     new UIKey("^", 38, 200);
     new UIKey(">", 39, 205);
     new UIKey("v", 40, 208);
     new UIKey("alt", 18, 184);
+	new UIKey("menu", 92, 220);
     new UIKey("ctrl", 17, 157);
 }

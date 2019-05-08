@@ -187,7 +187,7 @@
   z-index: -1;
   position: fixed;
   top: 85%; 
-  left: 38%;}
+  left: 300px;}
 
 @media (max-width: 768px) {
   #file-list {
@@ -245,8 +245,9 @@
   position: fixed;
   top: 0;
   left: 300px;
-  bottom: 0;
-  right: 0; }
+  /*bottom: 0;
+  right: 0;*/ 
+}
 
 #actions-pull-down-btn {
   margin-top: 20px;
