@@ -44,6 +44,38 @@ httpHelper.checkWSURL = function(url) {
 	}
 }
 
+httpHelper.request = function(url, callback, postData) {
+	var tocanceled = false;
+	setTimeout(function() {
+		if (tocanceled) return;
+		tocanceled = true;
+		computer.eventStack.push([
+			"http_bios", url, 0
+		]);
+	}, 3000);
+	
+	var r = new XMLHttpRequest();
+	r.onload = function(){
+		if (tocanceled) return;
+		tocanceled = true;
+		
+		if (r.status == 0) {
+			setTimeout(function(){httpHelper.request(url, mode, callback)}, 1000);
+			return;
+		}
+		
+		callback(r);
+	};
+	
+	var mode = !postData?"GET":"POST"
+	r.open(mode, config.corsproxy.replace("%s", url).replace("%m", mode), true);
+	if (mode == "POST") r.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+	if (config.withCorsAnywhereSupport) {
+		r.setRequestHeader("x-requested-with", "XMLHttpRequest");
+	}
+	r.send(postData);
+}
+
 //HTTP API
 var httpAPI = {};
 
@@ -61,54 +93,23 @@ httpAPI.request = function(L) {
 		return 2;
 	}
 
-	var cr
-	cr = function() {
-		var tocanceled = false;
-		setTimeout(function() {
-			if (tocanceled) return;
-			tocanceled = true;
-			computer.eventStack.push([
-				"http_bios", url, 0
-			]);
-		}, 3000);
-		
-		var r = new XMLHttpRequest();
-		r.onload = function() {
-			if (tocanceled) return;
-			tocanceled = true;
-			
-			if (r.status == 0) {
-				setTimeout(cr, 1000);
-				return;
-			}
-			var event = [
-				"http_bios", url, r.status, r.responseText
-			];
+	httpHelper.request(url, function(r) {
+		var event = [
+			"http_bios", url, r.status, r.responseText
+		];
 
-			//From https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/getAllResponseHeaders
-			var headers = r.getAllResponseHeaders()
-			if (headers) {
-				headers.trim().split(/[\r\n]+/).forEach(function(line) {
-					var parts = line.split(': ');
-					event.push(parts.shift()); //Header
-					event.push(parts.join(': ')); //Value
-				});
-			}
-			//End From
-			computer.eventStack.push(event);
-		};
-		
-		var mode = !postData?"GET":"POST"
-		console.log(mode)
-		r.open(mode, config.corsproxy.replace("%s", url).replace("%m", mode), true);
-		if (mode == "POST") r.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-		if (config.withCorsAnywhereSupport) {
-			r.setRequestHeader("x-requested-with", "XMLHttpRequest");
+		//From https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/getAllResponseHeaders
+		var headers = r.getAllResponseHeaders()
+		if (headers) {
+			headers.trim().split(/[\r\n]+/).forEach(function(line) {
+				var parts = line.split(': ');
+				event.push(parts.shift()); //Header
+				event.push(parts.join(': ')); //Value
+			});
 		}
-		r.send(postData);
-	}
-	
-	cr();
+		//End From
+		computer.eventStack.push(event);
+	}, postData);
 	
 	C.lua_pushboolean(L, true);
 

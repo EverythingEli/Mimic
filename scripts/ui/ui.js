@@ -1,24 +1,17 @@
-
 //
 //  ui.js
 //  1lann and GravityScore
 //
 
-
-
 var ui = {};
-
-
 
 //
 //    Editor
 //
 
-
 ui = {};
 
-
-ui.onCursorChange = function(event) {
+ui.onCursorChange = function (event) {
 	var type = sidebar.typeOfSelected();
 	if (type == "file") {
 		var path = sidebar.pathOfSelected();
@@ -26,10 +19,9 @@ ui.onCursorChange = function(event) {
 
 		ui.cursorLocations[path] = cursor;
 	}
-}
+};
 
-
-ui.onScrollChange = function(event) {
+ui.onScrollChange = function (event) {
 	var type = sidebar.typeOfSelected();
 	if (type == "file") {
 		var path = sidebar.pathOfSelected();
@@ -37,10 +29,9 @@ ui.onScrollChange = function(event) {
 
 		ui.scrollLocations[path] = scroll;
 	}
-}
+};
 
-
-ui.configureEditor = function() {
+ui.configureEditor = function () {
 	ui.editor = ace.edit("editor");
 	ui.editor.setTheme("ace/theme/tomorrow");
 	ui.editor.getSession().setMode("ace/mode/lua");
@@ -54,19 +45,15 @@ ui.configureEditor = function() {
 	ui.cursorLocations = {};
 	ui.scrollLocations = {};
 
-	ui.editor.getSession().selection.on("changeCursor",
-		ui.onCursorChange);
-	ui.editor.getSession().on("changeScrollTop",
-		ui.onScrollChange);
-}
-
+	ui.editor.getSession().selection.on("changeCursor", ui.onCursorChange);
+	ui.editor.getSession().on("changeScrollTop", ui.onScrollChange);
+};
 
 //
 //    Screenshots
 //
 
-
-ui.captureScreenshot = function(link) {
+ui.captureScreenshot = function (link) {
 	var computer = core.getActiveComputer();
 	var mainImage = new Image();
 	var cursorImage = new Image();
@@ -74,7 +61,7 @@ ui.captureScreenshot = function(link) {
 	mainImage.src = canvas.toDataURL("image/png");
 	cursorImage.src = overlayCanvas.toDataURL("image/png");
 
-	mainImage.onload = function() {
+	mainImage.onload = function () {
 		overlayContext.beginPath();
 		overlayContext.rect(0, 0, overlayCanvas.width, overlayCanvas.height);
 		overlayContext.fillStyle = "#000000";
@@ -82,7 +69,7 @@ ui.captureScreenshot = function(link) {
 
 		overlayContext.drawImage(mainImage, 0, 0);
 
-		cursorImage.onload = function() {
+		cursorImage.onload = function () {
 			overlayContext.drawImage(cursorImage, 0, 0);
 			link.href = overlayCanvas.toDataURL("image/png");
 			link.download = "screenshot.png";
@@ -90,18 +77,15 @@ ui.captureScreenshot = function(link) {
 			if (!computer.cursor.blink) {
 				overlayContext.clearRect(0, 0, canvas.width, canvas.height);
 			}
-		}
-	}
-}
-
-
+		};
+	};
+};
 
 //
 //    Fullscreen
 //
 
-
-ui.toggleFullscreen = function() {
+ui.toggleFullscreen = function () {
 	ui.isFullscreen = !ui.isFullscreen;
 	if (ui.isFullscreen) {
 		$(".sidebar-container").fadeOut(500);
@@ -109,7 +93,9 @@ ui.toggleFullscreen = function() {
 		$("#actions-pull-down").fadeOut(500);
 		$("#actions-pull-down-btn").fadeOut(500);
 		$("#exit-fullscreen").fadeIn(500);
-		$("#fullscreen-toggle").html("Exit").blur();
+		$("#fullscreen-toggle")
+			.html("Exit")
+			.blur();
 
 		window.onresize();
 	} else {
@@ -118,19 +104,19 @@ ui.toggleFullscreen = function() {
 		$("#actions-pull-down").fadeIn(500);
 		$("#actions-pull-down-btn").fadeIn(500);
 		$("#exit-fullscreen").fadeOut(500);
-		$("#fullscreen-toggle").html("Enter Fullscreen").blur();
+		$("#fullscreen-toggle")
+			.html("Enter Fullscreen")
+			.blur();
 
 		window.onresize();
 	}
-}
-
+};
 
 //
 //    Tabbing System
 //
 
-
-ui.saveOpenFile = function() {
+ui.saveOpenFile = function () {
 	if (sidebar.typeOfSelected() == "file") {
 		var path = sidebar.pathOfSelected();
 		if (path) {
@@ -138,21 +124,19 @@ ui.saveOpenFile = function() {
 			filesystem.write(path, contents);
 		}
 	}
-}
+};
 
-
-ui.showComputer = function(id) {
+ui.showComputer = function (id) {
 	core.setActiveComputer(id);
 	sidebar.update();
-	
+
 	ui.saveOpenFile();
 
 	$(".editor-container").css("display", "none");
 	$(".computer-container").css("display", "block");
-}
+};
 
-
-ui.showEditor = function(path) {
+ui.showEditor = function (path) {
 	$(".editor-container").css("display", "block");
 	$(".computer-container").css("display", "none");
 
@@ -165,46 +149,50 @@ ui.showEditor = function(path) {
 	$("#editor-title").html(name);
 	$("#editor-file-path").html(displayPath);
 
-	$("#delete-file-btn").off("click").click(function() {
-		ui.showComputer(computer.id);
-		sidebar.select($(".computer"));
+	$("#delete-file-btn")
+		.off("click")
+		.click(function () {
+			ui.showComputer(computer.id);
+			sidebar.select($(".computer"));
 
-		filesystem.delete(path);
-		sidebar.update();
-	});
+			filesystem.delete(path);
+			sidebar.update();
+		});
 
-	$("#download-file-btn").off("click").click(function() {
-		var contents = ui.editor.getSession().getValue();
-		var blob = new Blob([contents], {type: "text/plain;charset=utf-8"});
-		var actualName = name;
-		var extension = actualName.substring(actualName.length - 4);
-		if (extension != ".lua" || extension != ".txt") {
-			actualName += ".lua";
-		}
+	$("#download-file-btn")
+		.off("click")
+		.click(function () {
+			var contents = ui.editor.getSession().getValue();
+			var blob = new Blob([contents], {
+				type: "text/plain;charset=utf-8"
+			});
+			var actualName = name;
+			var extension = actualName.substring(actualName.length - 4);
+			if (extension != ".lua" || extension != ".txt") {
+				actualName += ".lua";
+			}
 
-		saveAs(blob, actualName);
-	});
+			saveAs(blob, actualName);
+		});
 
 	var contents = filesystem.read(path);
 	ui.editor.getSession().setValue(contents);
 
 	if (cursor) {
 		ui.editor.getSession().selection.moveCursorToPosition(cursor);
-	} if (scroll) {
+	}
+	if (scroll) {
 		ui.editor.getSession().setScrollTop(scroll);
 	}
 
 	ui.editor.focus();
-}
-
-
+};
 
 //
 //    Dropdown
 //
 
-
-ui.toggleDropdown = function() {
+ui.toggleDropdown = function () {
 	ui.isDropdownActive = !ui.isDropdownActive;
 
 	if (!ui.isDropdownActive) {
@@ -222,81 +210,83 @@ ui.toggleDropdown = function() {
 		span.removeClass("glyphicon-chevron-down");
 		span.addClass("glyphicon-chevron-up");
 	}
-}
-
-
+};
 
 //
 //    Loading
 //
 
-
-ui.onWindowClose = function() {
-
-}
-
+ui.onWindowClose = function () {};
 
 $(window).unload(ui.onWindowClose);
 $(window).blur(ui.onWindowClose);
 
-
-ui.beforeLoad = function() {
+ui.beforeLoad = function () {
 	ui.configureEditor();
 
 	ui.isDropdownActive = false;
 	ui.isNarrow = false;
 
-	$("#actions-pull-down-btn").click(function() {
+	$("#actions-pull-down-btn").click(function () {
 		ui.toggleDropdown();
 	});
 
-	$("#exit-fullscreen").click(function() {
+	$("#exit-fullscreen").click(function () {
 		ui.toggleFullscreen();
 	});
 
-	$("#terminate-btn").click(function() {
+	$("#terminate-btn").click(function () {
 		var computer = core.getActiveComputer();
-		if (typeof(computer) != "undefined") {
+		if (typeof computer != "undefined") {
 			computer.terminate();
 		}
 	});
 
-	$("#shutdown-btn").click(function() {
+	$("#shutdown-btn").click(function () {
 		var computer = core.getActiveComputer();
-		if (typeof(computer) != "undefined") {
+		if (typeof computer != "undefined") {
 			computer.shutdown();
 		}
 	});
 
-	$("#reboot-btn").click(function() {
+	$("#reboot-btn").click(function () {
 		var computer = core.getActiveComputer();
-		if (typeof(computer) != "undefined") {
+		if (typeof computer != "undefined") {
 			computer.reboot();
 		}
 	});
 
-	$("#screenshot-btn").click(function() {
+	$("#screenshot-btn").click(function () {
 		ui.captureScreenshot(this);
 	});
 
-	$("#fullscreen-btn").click(function() {
+	$("#fullscreen-btn").click(function () {
 		ui.toggleFullscreen();
 	});
-	
-	$("#delete-button").click(function(){
+
+	$("#delete-btn").click(function () {
+		if (core.computers[core.activeComputer]) {
+			filesystem.delete(fsHelper.getCCPath("/"));
+			delete core.computers[core.activeComputer];
+		}
+
+		var mcpu;
+		for (var i in core.computers) {
+			mcpu = core.setActiveComputer(i);
+			break;
+		}
+		if (!mcpu) core.setActiveComputer(0);
+		
+		sidebar.update();
 		$("#cpudel-modal").modal("hide");
 	});
 
 	window.onresize();
-}
+};
 
+ui.onLoad = function () {};
 
-ui.onLoad = function() {
-
-}
-
-
-ui.afterLoad = function() {
+ui.afterLoad = function () {
 	$(".loader-container").fadeOut(1000);
 
 	var computer = core.getActiveComputer();
@@ -314,17 +304,14 @@ ui.afterLoad = function() {
 	context.fill();
 
 	window.onresize();
-}
-
-
+};
 
 //
 //    Main
 //
 
-
-window.onresize = function() {
-	$(".loader").css("margin-top", (window.innerHeight / 2 + 100) + "px");
+window.onresize = function () {
+	$(".loader").css("margin-top", window.innerHeight / 2 + 100 + "px");
 
 	if (window.innerWidth < 900) {
 		$(".sidebar-container").hide();
@@ -342,18 +329,18 @@ window.onresize = function() {
 		ui.isFullscreen = false;
 	}
 
-	if (typeof(core) != "undefined") {
+	if (typeof core != "undefined") {
 		var computer = core.getActiveComputer();
-		if (typeof(computer) != "undefined") {
+		if (typeof computer != "undefined") {
 			var location = computer.getLocation();
 			$(".computer-canvas").css({
-				"left": location.x + "px",
-				"top": location.y + "px"
+				left: location.x + "px",
+				top: location.y + "px"
 			});
 			$("#mobile-keyboard").css({
-				"left": location.x + "px",
-				"top": location.y + canvas.height + "px"
+				left: location.x + "px",
+				top: location.y + canvas.height + "px"
 			});
 		}
 	}
-}
+};

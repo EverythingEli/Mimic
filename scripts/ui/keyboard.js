@@ -1,9 +1,3 @@
-navigator.permissions.query({name: 'clipboard-read'}).then(function(a){
-	console.log(a)
-})
-
-//for (var i in navigator.clipboard) alert(i);
-
 var mobileKeyboardBox = $("#mobile-keyboard");
 
 var buttons = {
@@ -49,25 +43,31 @@ UIKey.prototype.onMouseUp = function() {
 	$("#keyboard-key-paste").click(function() {
 		var computer = core.getActiveComputer();
 		var text = "CLIPBOARD_PERMISSION_ERROR";
-		try {
-			text = await (navigator.clipboard.read||navigator.clipboard.readText)()
-		} catch (e) {}
-		computer.eventStack.push(["key_up", text]);
+		navigator.permissions.query({name: 'clipboard-read'}).then(function(p){
+			if (p.state == "prompt") {
+			    $("#clipboard-permission-modal").modal("show")
+			} else if (p.state != 'denied') {
+				text = (navigator.clipboard.read||navigator.clipboard.readText)()
+				computer.eventStack.push(["paste", text]);
+				computer.resume();
+			}
+		})
 	});
     br();br();
 	
     new UIKey("esc", 27, 1);
+    for (var i = 1; i<=12; i++) new UIKey("F"+i, 111+i, 58+i);
 	br();
     new UIKey("tab", 9, 15);
 	br();
     new UIKey("ctrl", 17, 29);
 	new UIKey("menu", 91, 219);
     new UIKey("alt", 18, 56);
+    new UIKey("alt", 18, 184);
+	new UIKey("menu", 92, 220);
+    new UIKey("ctrl", 17, 157);
     new UIKey("<", 37, 203);
     new UIKey("^", 38, 200);
     new UIKey(">", 39, 205);
     new UIKey("v", 40, 208);
-    new UIKey("alt", 18, 184);
-	new UIKey("menu", 92, 220);
-    new UIKey("ctrl", 17, 157);
 }

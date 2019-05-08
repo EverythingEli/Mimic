@@ -1,4 +1,3 @@
-
 //
 //  core.js
 //  GravityScore and 1lann
@@ -105,11 +104,9 @@ core.loadStartupScript = function(callback) {
 	var url = core.fetchStartupScriptURL();
 
 	if (url && url.length > 0) {
-		var request = new xdRequest();
-		request.setURL(url);
-		request.get(function(response) {
+		httpHelper.request(url, function(response) {
 			if (response.status == "200") {
-				core.startupScript = response.html;
+				core.startupScript = response.responseText;
 			} else {
 				console.log("Failed to load startup script");
 				console.log("Server responded with status code " + response.status);

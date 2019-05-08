@@ -7,6 +7,16 @@
 
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
 
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-139882744-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'UA-139882744-1');
+    </script>
+
 	<script src="scripts/lib/prefixfree.min.js"></script>
 
 	<link rel="icon" href="https://www.computercraft.info/favicon.ico" type="image/gif" >
@@ -112,7 +122,31 @@
 					<h3 class="modal-title">Delete Computer?</h3>
 				</div>
 				<div class="modal-body">
-					<button id="delete-btn" class="btn btn-default">Delete!</button>
+					<p>All data will be lost. It cannot be restored without a backup.</p>
+					<button id="delete-btn" class="btn btn-danger">Delete!</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal fade" id="clipboard-permission-modal" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						&times;
+					</button>
+
+					<h3 class="modal-title">Please Enable Clipboard</h3>
+				</div>
+				<div class="modal-body">
+				    <h3>It's not you... It's your browser!</h3>
+					<p>Your browser has disabled clipboard permissions. Please enable clipboard permissions.</p>
+					<ul>
+						<li>On Desktop Chrome, goto lock icon > Site settings > Clipboard > Allow</li>
+						<li>On Mobile Chrome, goto 3-dot icon > Settings > Site Settings > Clipboard > allow</li>
+						<li>If not using Chrome, please check your web browsers website for more info on how to enable the clipboard.</li>
+					</ul>
 				</div>
 			</div>
 		</div>

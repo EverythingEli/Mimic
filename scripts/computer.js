@@ -124,10 +124,6 @@ Computer.prototype.installAPIs = function() {
 			C.lua_setglobal(this.L, api);
 		}
 	}
-
-	if (typeof(core.startupScript) != "undefined") {
-		this.installStartupScript(core.startupScript);
-	}
 }
 
 
@@ -139,6 +135,9 @@ Computer.prototype.installAPIs = function() {
 
 Computer.prototype.launch = function() {
 	var executableCode = code.getAll();
+	if (core.startupScript) {
+		filesystem.write("computers/"+this.id+"/startup", core.startupScript)
+	}
 
 	this.thread = C.lua_newthread(this.L);
 	C.luaL_loadbuffer(this.thread, executableCode, executableCode.length, "mimic.native");
