@@ -182,6 +182,12 @@
   background: none;
   left: -100px;
   top: 160px; }
+  
+#mobile-keyboard {
+  z-index: -1;
+  position: fixed;
+  top: 85%; 
+  left: 38%;}
 
 @media (max-width: 768px) {
   #file-list {

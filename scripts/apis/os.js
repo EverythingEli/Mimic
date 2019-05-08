@@ -125,7 +125,6 @@ osAPI.setAlarm = function(L) {
 osAPI.queueEvent = function(L) {
 	var computer = core.getActiveComputer();
 	var queueObject = [];
-	queueObject.push(C.luaL_checkstring(L, 1));
 
 	var top = C.lua_gettop(L);
 	for (var i = 1; i <= top; i++) {

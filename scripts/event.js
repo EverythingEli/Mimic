@@ -137,6 +137,15 @@ window.onkeyup = function(event) {
 		clearTimeout(events.triggerKeyTimerID);
 		events.triggerKeyTimerID = null;
 	}
+	
+	var computer = core.getActiveComputer();
+	if (typeof computer == "undefined") {
+		return;
+	}
+	computer.eventStack.push(["key_up", globals.keyCodes[event.keyCode]]);
+	computer.resume();
+	
+	event.preventDefault();
 }
 
 
