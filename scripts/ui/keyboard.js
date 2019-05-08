@@ -42,16 +42,24 @@ UIKey.prototype.onMouseUp = function() {
 	new UIKey("paste");
 	$("#keyboard-key-paste").click(function() {
 		var computer = core.getActiveComputer();
-		var text = "CLIPBOARD_PERMISSION_ERROR";
-		navigator.permissions.query({name: 'clipboard-read'}).then(function(p){
-			if (p.state == "prompt") {
+		navigator.permissions.query({name: 'clipboard-read'}).then(p => {
+			if (p.state == "denied") {
 			    $("#clipboard-permission-modal").modal("show")
-			} else if (p.state != 'denied') {
-				text = (navigator.clipboard.read||navigator.clipboard.readText)()
-				computer.eventStack.push(["paste", text]);
-				computer.resume();
+			} else {
+			    var r;
+			    if (navigator.clipboard.readText) {
+			        r = navigator.clipboard.readText();
+			    } else {
+			        r = navigator.clipboard.read();
+			    }
+				r.then(text => {
+					computer.eventStack.push(["paste", text]);
+					computer.resume();
+				}).catch(err => {
+				    $("#clipboard-permission-modal").modal("show");
+				});
 			}
-		})
+		});
 	});
     br();br();
 	
