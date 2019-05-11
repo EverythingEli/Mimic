@@ -4,7 +4,7 @@
 //  GravityScore and 1lann
 //
 
-var C = {};
+
 
 var config = {
 	"width": 51,

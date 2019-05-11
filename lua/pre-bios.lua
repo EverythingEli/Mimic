@@ -5,6 +5,7 @@ local console = {}
 console.log = print
 
 local debug = debug
+local cgd = collectgarbage
 collectgarbage = nil
 require = nil
 module = nil
@@ -29,6 +30,7 @@ xpcall = function(_fn, _fnErrorHandler)
 	local co = coroutine.create(_fn)
 	
 	local function hook()
+        cgd()
 		if os.clock() >= coroutineClock + 3.5 then
 			console.log("Lua: Too long without yielding")
 			error("Too long without yielding", 2)

@@ -227,8 +227,6 @@ render.centredText = function(y, text, foreground, background, ctx) {
 
 render.cursorBlink = function() {
 	var computer = core.getActiveComputer();
-	
-	if (!computer) return;
 
 	if (computer.cursor.blink && core.cursorFlash) {
 		overlayContext.clearRect(0, 0, canvas.width, canvas.height);
