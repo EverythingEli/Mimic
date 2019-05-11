@@ -1,233 +1,216 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-
-	<title>Mimic</title>
-
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
-
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-139882744-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-    
-      gtag('config', 'UA-139882744-1');
-    </script>
-
-	<script src="scripts/lib/prefixfree.min.js"></script>
-
-	<link rel="icon" href="https://www.computercraft.info/favicon.ico" type="image/gif" >
+	<head>
 	
-	<link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
-	<link rel="stylesheet" href="css/style.css" type="text/css"/>
-
-</head>
-
-
-<body oncontextmenu="return false;">
-
-	<div class="sidebar-container">
-		<ul class="sidebar"></ul>
-	</div>
-
-
-	<div class="computer-container">
-		<button id="exit-fullscreen" class="btn btn-default pull-right" style="display: none;">
-			Exit
-		</button>
-
-		<button id="actions-pull-down-btn" class="btn btn-default">
-			<span class="glyphicon glyphicon-chevron-down"></span>
-		</button>
-		<div id="actions-pull-down" class="btn-group-vertical" style="display: none;">
-			<button id="terminate-btn" class="btn btn-default">Terminate</button>
-			<button id="shutdown-btn" class="btn btn-default">Shutdown</button>
-			<button id="reboot-btn" class="btn btn-default">Reboot</button>
-			<a id="screenshot-btn" class="btn btn-default">Take Screenshot</a>
-			<button id="fullscreen-btn" class="btn btn-default">Enter Fullscreen</button>
-			<button data-toggle="modal" data-target="#cpudel-modal" class="btn btn-default">Delete Computer</button>
-			<button data-toggle="modal" data-target="#credits-modal" class="btn btn-default">Credits</button>
-		</div>
-
-		<form id="mobile-form">
-			<input id="mobile-input" type="password"/>
-		</form>
-		<canvas id="canvas" class="computer-canvas" tabindex='1'></canvas>
-		<canvas id="overlay-canvas" class="computer-canvas" tabindex='1'></canvas>
+		<title>Mimic</title>
+	
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+	
+	    <!-- Global site tag (gtag.js) - Google Analytics -->
+	    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-139882744-1"></script>
+	    <script>
+	      window.dataLayer = window.dataLayer || [];
+	      function gtag(){dataLayer.push(arguments);}
+	      gtag('js', new Date());
+	    
+	      gtag('config', 'UA-139882744-1');
+	    </script>
+	
+		<script src="scripts/lib/prefixfree.min.js"></script>
+	
+		<link rel="icon" href="https://www.computercraft.info/favicon.ico" type="image/gif" >
 		
-		<div id="mobile-keyboard"></div>
-	</div>
-
-
-	<div class="editor-container" style="display: none;">
-		<div class="editor-header">
-			<h1 id="editor-title"></h1>
-			<p id="editor-file-path"></p>
-
-			<a id="download-file-btn" class="btn btn-default pull-right">Download</a>
-			<a id="delete-file-btn" class="btn btn-default pull-right">Delete</a>
-		</div>
-
-		<div id="editor"></div>
-	</div>
-
-
-	<div class="modal fade" id="credits-modal" tabindex="-1">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal">
-						&times;
-					</button>
-
-					<h3 class="modal-title">Credits</h3>
-				</div>
-
-                <div class="modal-body">
-					<p><strong>Made By</strong></p>
-					<p>GravityScore and 1lann</p>
-					<br>
-					
-					<p><strong>Modified By</strong></p>
-					<p>
-					   <span style="color:#FF0000;">Every</span><span style="color:#999999;">OS</span>
-				    </p>
-					<br>
-
-					<p><strong>ComputerCraft By</strong></p>
-					<p>Dan200</p>
-					<br>
-					
-					<p><strong>ComputerCraft:Tweaked By</strong></p>
-					<p>SquidDev</p>
-					<br>
-
-					<a href="https://github.com/jasonthekitten/Mimic" target="_blank">GitHub Repository</a><br>
-				</div>
-			</div>
-		</div>
-	</div>
+		<link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
+		<link rel="stylesheet" href="css/style.css" type="text/css"/>
 	
-	<div class="modal fade" id="cpudel-modal" tabindex="-1">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal">
-						&times;
-					</button>
-
-					<h3 class="modal-title">Delete Computer?</h3>
-				</div>
-				<div class="modal-body">
-					<p>All data will be lost. It cannot be restored without a backup.</p>
-					<button id="delete-btn" class="btn btn-danger">Delete!</button>
-				</div>
-			</div>
-		</div>
-	</div>
+	</head>
 	
-	<div class="modal fade" id="clipboard-permission-modal" tabindex="-1">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal">
-						&times;
-					</button>
-
-					<h3 class="modal-title">Please Enable Clipboard</h3>
+	
+	<body oncontextmenu="return false;">
+	
+		<div class="sidebar-container">
+			<ul class="sidebar"></ul>
+		</div>
+	
+	
+		<div class="computer-container">
+			<button id="exit-fullscreen" class="btn btn-default pull-right" style="display: none;">
+				Exit
+			</button>
+	
+			<button id="actions-pull-down-btn" class="btn btn-default">
+				<span class="glyphicon glyphicon-chevron-down"></span>
+			</button>
+			<div id="actions-pull-down" class="btn-group-vertical" style="display: none;">
+				<button id="terminate-btn" class="btn btn-default">Terminate</button>
+				<button id="shutdown-btn" class="btn btn-default">Shutdown</button>
+				<button id="reboot-btn" class="btn btn-default">Reboot</button>
+				<a id="screenshot-btn" class="btn btn-default">Take Screenshot</a>
+				<button id="fullscreen-btn" class="btn btn-default">Enter Fullscreen</button>
+				<button data-toggle="modal" data-target="#cpudel-modal" class="btn btn-default">Delete Computer</button>
+				<button data-toggle="modal" data-target="#credits-modal" class="btn btn-default">Credits</button>
+			</div>
+	
+			<form id="mobile-form">
+				<input id="mobile-input" type="password"/>
+			</form>
+			<canvas id="canvas" class="computer-canvas" tabindex='1'></canvas>
+			<canvas id="overlay-canvas" class="computer-canvas" tabindex='1'></canvas>
+			
+			<div id="mobile-keyboard"></div>
+		</div>
+	
+	
+		<div class="editor-container" style="display: none;">
+			<div class="editor-header">
+				<h1 id="editor-title"></h1>
+				<p id="editor-file-path"></p>
+	
+				<a id="download-file-btn" class="btn btn-default pull-right">Download</a>
+				<a id="delete-file-btn" class="btn btn-default pull-right">Delete</a>
+			</div>
+	
+			<div id="editor"></div>
+		</div>
+	
+	
+		<div class="modal fade" id="credits-modal" tabindex="-1">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">
+							&times;
+						</button>
+	
+						<h3 class="modal-title">Credits</h3>
+					</div>
+	
+	                <div class="modal-body">
+						<p><strong>Made By</strong></p>
+						<p>GravityScore and 1lann</p>
+						<br>
+						
+						<p><strong>Modified By</strong></p>
+						<p>
+						   <span style="color:#FF0000;">Every</span><span style="color:#999999;">OS</span>
+					    </p>
+						<br>
+	
+						<p><strong>ComputerCraft By</strong></p>
+						<p>Dan200</p>
+						<br>
+						
+						<p><strong>ComputerCraft:Tweaked By</strong></p>
+						<p>SquidDev</p>
+						<br>
+	
+						<a href="https://github.com/jasonthekitten/Mimic" target="_blank">GitHub Repository</a><br>
+					</div>
 				</div>
-				<div class="modal-body">
-				    <h3>It's not you... It's your browser!</h3>
-					<p>Your browser has disabled clipboard permissions. Please enable clipboard permissions.</p><br/>
-					<p>If a permission dialogue pops up, click allow, else:</p>
-					<ul>
-						<li>On Desktop Chrome, goto lock icon > Site settings > Clipboard > Allow</li>
-						<li>On Mobile Chrome, goto 3-dot icon > Settings > Site Settings > Clipboard > Ask (default)</li>
-						<li>If not using Chrome, please check your web browsers website for more info on how to enable the clipboard.</li>
-					</ul>
+			</div>
+		</div>
+		
+		<div class="modal fade" id="cpudel-modal" tabindex="-1">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">
+							&times;
+						</button>
+	
+						<h3 class="modal-title">Delete Computer?</h3>
+					</div>
+					<div class="modal-body">
+						<p>All data will be lost. It cannot be restored without a backup.</p>
+						<button id="delete-btn" class="btn btn-danger">Delete!</button>
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
-
-
-	<div class="loader-container">
-		<div class="loader">
-			<div class="duo duo1">
-				<div class="dot dot-a"></div>
-				<div class="dot dot-b"></div>
-			</div>
-
-			<div class="duo duo2">
-				<div class="dot dot-a"></div>
-				<div class="dot dot-b"></div>
+		
+		<div class="modal fade" id="clipboard-permission-modal" tabindex="-1">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">
+							&times;
+						</button>
+	
+						<h3 class="modal-title">Please Enable Clipboard</h3>
+					</div>
+					<div class="modal-body">
+					    <h3>It's not you... It's your browser!</h3>
+						<p>Your browser has disabled clipboard permissions. Please enable clipboard permissions.</p><br/>
+						<p>If a permission dialogue pops up, click allow, else:</p>
+						<ul>
+							<li>On Desktop Chrome, goto lock icon > Site settings > Clipboard > Allow</li>
+							<li>On Mobile Chrome, goto 3-dot icon > Settings > Site Settings > Clipboard > Ask (default)</li>
+							<li>If not using Chrome, please check your web browsers website for more info on how to enable the clipboard.</li>
+						</ul>
+					</div>
+				</div>
 			</div>
 		</div>
-	</div>
-
-
-	<noscript>
-		<div class="noscript-container">
-			<h3>Javascript is Disabled!</h3>
-			<p>You need Javascript to use Mimic!</p>
-			<p>Please enable it, or download a better browser.</p>
-			<a href="http://www.google.com/chrome">Get Google Chrome</a>
+	
+	
+		<div class="loader-container">
+			<div class="loader">
+				<div class="duo duo1">
+					<div class="dot dot-a"></div>
+					<div class="dot dot-b"></div>
+				</div>
+	
+				<div class="duo duo2">
+					<div class="dot dot-a"></div>
+					<div class="dot dot-b"></div>
+				</div>
+			</div>
 		</div>
-	</noscript>
-
-</body>
-
-
-<script src="scripts/lib/jquery.min.js"></script>
-<script src="scripts/lib/bootstrap.min.js"></script>
-<script src="scripts/lib/ace/src-min-noconflict/ace.js" charset="utf-8"></script>
-<script src="scripts/lib/Blob.js"></script>
-<script src="scripts/lib/FileSaver.js"></script>
-<script src="scripts/lib/CapsLock.compressed.js"></script>
-
-<script src="scripts/ui/sidebar.js"></script>
-<script src="scripts/ui/keyboard.js"></script>
-<script src="scripts/ui/ui.js"></script>
-
-<script src="scripts/lib/purl.js"></script>
-<script src="scripts/lib/lua5.1.5.js"></script>
-<script src="scripts/lib/browserfs.min.js"></script>
-
-<script src="scripts/globals.js"></script>
-<script src="scripts/code.js"></script>
-<script src="scripts/core.js"></script>
-<script src="scripts/computer.js"></script>
-<script src="scripts/filesystem.js"></script>
-<script src="scripts/render.js"></script>
-<script src="scripts/event.js"></script>
-
-<script src="scripts/apis/bit32.js"></script>
-<script src="scripts/apis/fs.js"></script>
-<script src="scripts/apis/http.js"></script>
-<script src="scripts/apis/os.js"></script>
-<script src="scripts/apis/peripheral.js"></script>
-<script src="scripts/apis/redstone.js"></script>
-<script src="scripts/apis/term.js"></script>
-
-
-<script>
-
-	//
-	//    Main Entry Point
-	//
-
-
-	window.onresize();
-	ui.beforeLoad();
-
-	$(document).ready(function() {
-		core.run();
-	});
-
-
-</script>
-
+	
+	
+		<noscript>
+			<div class="noscript-container">
+				<h3>Javascript is Disabled!</h3>
+				<p>You need Javascript to use Mimic!</p>
+				<p>Please enable it, or download a better browser.</p>
+				<a href="http://www.google.com/chrome">Get Google Chrome</a>
+			</div>
+		</noscript>
+	
+	</body>
+	
+	
+	<script src="scripts/lib/jquery.min.js"></script>
+	<script src="scripts/lib/bootstrap.min.js"></script>
+	<script src="scripts/lib/ace/src-min-noconflict/ace.js" charset="utf-8"></script>
+	<script src="scripts/lib/Blob.js"></script>
+	<script src="scripts/lib/FileSaver.js"></script>
+	<script src="scripts/lib/CapsLock.compressed.js"></script>
+	
+	<script src="scripts/ui/sidebar.js"></script>
+	<script src="scripts/ui/keyboard.js"></script>
+	<script src="scripts/ui/ui.js"></script>
+	
+	<script src="scripts/lib/purl.js"></script>
+	<script src="scripts/lib/browserfs.min.js"></script>
+	
+	<script src="scripts/globals.js"></script>
+	<script src="scripts/code.js"></script>
+	<script src="scripts/core.js"></script>
+	<script src="scripts/computer.js"></script>
+	<script src="scripts/filesystem.js"></script>
+	<script src="scripts/render.js"></script>
+	<script src="scripts/event.js"></script>
+	
+	<script src="scripts/apis/bit32.js"></script>
+	<script src="scripts/apis/fs.js"></script>
+	<script src="scripts/apis/http.js"></script>
+	<script src="scripts/apis/os.js"></script>
+	<script src="scripts/apis/peripheral.js"></script>
+	<script src="scripts/apis/redstone.js"></script>
+	<script src="scripts/apis/term.js"></script>
+	
+	<script src="scripts/main.js"></script>
+	
+	<script src="scripts/lib/lua5.1.5.js"></script>
 </html>

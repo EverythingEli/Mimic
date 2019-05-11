@@ -4,9 +4,10 @@
 //
 
 
+var lua5_1 = lua5_1||{};
 
 var core = {};
-var C = Lua5_1.C;
+var C;
 
 
 
@@ -151,7 +152,6 @@ core.afterSetup = function() {
 	sidebar.update();
 }
 
-
 core.run = function() {
 	// Load:
 	//  1. Filesystem
@@ -160,6 +160,7 @@ core.run = function() {
 	//  4. Cursor flash
 	//  5. Computer
 
+	XMLHttpRequest.responseType = "text";
 	filesystem.setup(function() {
 		core.loadStartupScript(function() {
 			render.setup(core.afterSetup);

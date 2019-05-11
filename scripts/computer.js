@@ -104,11 +104,6 @@ Computer.prototype.installAPIs = function() {
 		"term": termAPI,
 	};
 
-	Lua5_1.Runtime.functionPointers = [];
-	for (var i = 1; i <= 512; i++) {
-		Lua5_1.Runtime.functionPointers.push(null);
-	}
-
 	C.luaL_openlibs(this.L);
 
 	for (var api in apis) {
