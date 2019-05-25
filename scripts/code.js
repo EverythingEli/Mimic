@@ -10,9 +10,9 @@ var code = {};
 
 code.getAll = function() {
 	return code.prebios + "\n"+
-	"local rtn, err = loadstring([=====[" + 
+	"execFunc(function() local rtn, err = loadstring([=====[" + 
 	   code.bios
-	+" ]=====], \"bios.lua\") if rtn then rtn() else console.log(err) end";
+	+" ]=====], \"bios.lua\") if rtn then rtn() else console.log(err) end end)";
 }
 
 

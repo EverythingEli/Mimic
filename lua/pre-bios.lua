@@ -1,7 +1,8 @@
 _HOST = "ComputerCraft 1.80pr1.12 (Minecraft 1.12.2)"
 _CC_DEFAULT_SETTINGS = ""
 
-local console = {}
+local
+console = {}
 console.log = print
 
 local debug = debug
@@ -43,7 +44,7 @@ xpcall = function(_fn, _fnErrorHandler)
 
 	debug.sethook(co)
 	while coroutine.status(co) ~= "dead" do
-		local events = {coroutine.yield()}
+		local events = {coroutine.yield(unpack(results, 2))}
 
 		coroutineClock = os.clock()
 		debug.sethook(co, hook, "", 10000)
@@ -281,69 +282,73 @@ end
 local wsdo = http.wsdo
 http.wsdo = nil
 
-local nativeYield = coroutine.yield
-function coroutine.yield(filter, ...)
-	while true do
-		local response = {nativeYield(filter, ...)}
-		if response[1] == "http_bios" and not response[2] then
-			table.remove(response, 2)
-		elseif response[1] == "http_bios" then
-			local oldResponse = response
-			local handle = wrapIS(oldResponse[4])
-			local headers = {}
-			if #oldResponse>4 then
-				for i=5, #oldResponse, 2 do
-					local oname, nc, name = oldResponse[i], true, ""
-					for i=1, #oname do
-						local c = oname:sub(i,i)
-						name = name..(nc and c:upper() or c)
-						nc = false
-						if c == "-" then
-							nc = true
-						end
+local function processEvent(response)
+	if response[1] == "http_bios" and not response[2] then
+		table.remove(response, 2)
+	elseif response[1] == "http_bios" then
+		local oldResponse = response
+		local handle = wrapIS(oldResponse[4])
+		local headers = {}
+		if #oldResponse>4 then
+			for i=5, #oldResponse, 2 do
+				local oname, nc, name = oldResponse[i], true, ""
+				for i=1, #oname do
+					local c = oname:sub(i,i)
+					name = name..(nc and c:upper() or c)
+					nc = false
+					if c == "-" then
+						nc = true
 					end
-					headers[name] = oldResponse[i+1]
 				end
-			end
-			oldResponse[4] = nil
-			handle.getResponseCode = function()
-				return oldResponse[3]
-			end
-			handle.getResponseHeaders = function()
-				return headers
-			end
-			if response[3] >= 200 and response[3] < 400 then
-				response = {"http_success", response[2], handle};
-			else
-				response = {"http_failure", response[2], "Unknown host", (response[3]~= 0 and handle) or nil};
+				headers[name] = oldResponse[i+1]
 			end
 		end
-		if response[1] == "websocket_bios" and not response[2] then
-			table.remove(response, 2)
-		elseif response[1] == "websocket_bios" then
-			local id = response[3]
-			local handle = {}
-			
-			local function checkClosed()
-				if not wsdo(id, "cc") then error("attempt to use a closed file") end
-			end
-			local function checkClosed2()
-				if not wsdo(id, "cc") then error("Java Exception Thrown: java.lang.NullPointerException", -1) end
-			end
-			
-			handle.close = function()
-				checkClosed2()
-				wsdo(id, "close")
-			end
-			handle.send = function(d)
-				checkClosed()
-				wsdo(id, "send", d)
-			end
-			
-			response = {"websocket_success", response[2], handle}
+		oldResponse[4] = nil
+		handle.getResponseCode = function()
+			return oldResponse[3]
 		end
-		if (response[1] == filter) or (response[1] == "terminate") or not filter then
-			return unpack(response)
+		handle.getResponseHeaders = function()
+			return headers
 		end
+		if response[3] >= 200 and response[3] < 400 then
+			response = {"http_success", response[2], handle};
+		else
+			response = {"http_failure", response[2], "Unknown host", (response[3]~= 0 and handle) or nil};
+		end
+	end
+	if response[1] == "websocket_bios" and not response[2] then
+		table.remove(response, 2)
+	elseif response[1] == "websocket_bios" then
+		local id = response[3]
+		local handle = {}
+		
+		local function checkClosed()
+			if not wsdo(id, "cc") then error("attempt to use a closed file") end
+		end
+		local function checkClosed2()
+			if not wsdo(id, "cc") then error("Java Exception Thrown: java.lang.NullPointerException", -1) end
+		end
+		
+		handle.close = function()
+			checkClosed2()
+			wsdo(id, "close")
+		end
+		handle.send = function(d)
+			checkClosed()
+			wsdo(id, "send", d)
+		end
+		
+		response = {"websocket_success", response[2], handle}
+	end
+	
+	return unpack(response)
+end
+
+local function execFunc(func) --Called in code.js
+	local co = coroutine.create(func)
+	local rtn = {coroutine.resume(co)}
+	while coroutine.status(co) ~= "dead" do
+		table.remove(rtn, 1)
+		rtn={coroutine.resume(co, processEvent({coroutine.yield(unpack(rtn))}))}
 	end
 end
