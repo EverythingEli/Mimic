@@ -137,21 +137,26 @@ httpAPI.websocket = function(L) {
 		var err = "Invalid handshake response: Unknown";
 		computer.eventStack.push(["websocket_failure", url, err]);
 		closeDisabled = true;
+		computer.resume();
 	}
 	ws.onopen = function(){
 		computer.eventStack.push(["websocket_bios", url, websockets.length]);
 		var l = websockets.length;
+		console.log(l);
 		websockets[l] = {open:true, socket:ws, id:l};
 		websockets[ws] = websockets[l];
+		computer.resume();
 	}
 	ws.onmessage = function(event){
 		computer.eventStack.push(["websocket_message", url, event.data]);
+		computer.resume();
 	}
 	ws.onclose = function(event){
 		if (!websockets[ws]) return;
 		websockets[ws].open = false;
 		if (!closeDisabled) {
 			computer.eventStack.push(["websocket_close", url]);
+			computer.resume();
 		}
 	}
 	
@@ -167,7 +172,8 @@ httpAPI.wsdo = function(L) {
 	var m = C.luaL_checkstring(L, 2);
 	
 	var mwso = websockets[id];
-	var mws = websockets[id].socket;
+	if (!mwso) return;
+	var mws = mwso.socket;
 	
 	if (m == "cc") {
 		C.lua_pushboolean(L, mwso.open);

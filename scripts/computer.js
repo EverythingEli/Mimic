@@ -62,7 +62,7 @@ Computer.prototype.reset = function() {
 			}
 		}
 	}
-	this.websockets = {};
+	this.websockets = [];
 
 	this.shouldShutdown = false;
 	this.shouldReboot = false;
@@ -178,7 +178,6 @@ Computer.prototype.pushEventStackToThread = function() {
 		} else if (typeof(argument) == "object") {
 			C.lua_pushstring(this.thread, core.serializeTable(argument));
 		} else if (argument) {
-			console.log(argument)
 			C.lua_pushstring(this.thread, argument.toString());
 		}
 	}
