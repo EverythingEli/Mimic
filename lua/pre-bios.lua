@@ -283,7 +283,6 @@ local wsdo = http.wsdo
 http.wsdo = nil
 
 local function processEvent(response)
-	console.log(response[1])
 	if response[1] == "http_bios" and not response[2] then
 		table.remove(response, 2)
 	elseif response[1] == "http_bios" then

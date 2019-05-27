@@ -193,9 +193,13 @@ termAPI.setPaletteColor = function(L) {
 
 termAPI.getPaletteColor = function(L) {
 	var computer = core.getActiveComputer();
-	C.lua_pushnumber(L, 0);
+	var color = C.luaL_checkint(L, 1);
+	var mcolor = computer.palette[color];
+	C.lua_pushnumber(L, ((mcolor&0xFF0000)>>16)/255);
+	C.lua_pushnumber(L, ((mcolor&0x00FF00)>>8)/255);
+	C.lua_pushnumber(L, ((mcolor&0x0000FF)>>0)/255);
 	
-	return 1;
+	return 3;
 }
 
 

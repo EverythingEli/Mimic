@@ -52,13 +52,34 @@ Computer.prototype.reset = function() {
 	this.colors.background = "0";
 	this.colors.foreground = "f";
 	
+	this.palette = {};
+	this.palette["X"] = 0xFF;
+	this.palette[Math.pow(2, 0)] = 0xF0F0F0;
+	this.palette[Math.pow(2, 1)] = 0xF2B233;
+	this.palette[Math.pow(2, 2)] = 0xE58FD8;
+	this.palette[Math.pow(2, 3)] = 0x99B2F2;
+	this.palette[Math.pow(2, 4)] = 0xDEDE6C;
+	this.palette[Math.pow(2, 5)] = 0x7FCC19;
+	this.palette[Math.pow(2, 6)] = 0xF2B2CC;
+	this.palette[Math.pow(2, 7)] = 0x4C4C4C;
+	this.palette[Math.pow(2, 8)] = 0x999999;
+	this.palette[Math.pow(2, 9)] = 0x4C99B2;
+	this.palette[Math.pow(2, 10)]= 0xB266E5;
+	this.palette[Math.pow(2, 11)]= 0x3366CC;
+	this.palette[Math.pow(2, 12)]= 0x7F664C;
+	this.palette[Math.pow(2, 13)]= 0x57A64E;
+	this.palette[Math.pow(2, 14)]= 0xCC4C4C;
+	this.palette[Math.pow(2, 15)]= 0x111111;
+	for (var i in this.palette){console.log(i);}
+	
+	
 	if (this.websockets) {
 		for (var id in this.websockets) {
 			i=this.websockets[id];
 			if (i.open) {
 				try {
 					i.socket.close();
-				} catch (e) {console.log("A")}
+				} catch (e) {}
 			}
 		}
 	}

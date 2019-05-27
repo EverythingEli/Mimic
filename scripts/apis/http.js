@@ -142,7 +142,6 @@ httpAPI.websocket = function(L) {
 	ws.onopen = function(){
 		computer.eventStack.push(["websocket_bios", url, websockets.length]);
 		var l = websockets.length;
-		console.log(l);
 		websockets[l] = {open:true, socket:ws, id:l};
 		websockets[ws] = websockets[l];
 		computer.resume();
@@ -182,6 +181,7 @@ httpAPI.wsdo = function(L) {
 	}
 	if (m == "send") {
 		var d = C.luaL_checkstring(L, 3);
+		
 		mws.send(d);
 		
 		return 0;
