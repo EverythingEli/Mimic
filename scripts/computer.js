@@ -53,7 +53,6 @@ Computer.prototype.reset = function() {
 	this.colors.foreground = "f";
 	
 	this.palette = {};
-	this.palette["X"] = 0xFF;
 	this.palette[Math.pow(2, 0)] = 0xF0F0F0;
 	this.palette[Math.pow(2, 1)] = 0xF2B233;
 	this.palette[Math.pow(2, 2)] = 0xE58FD8;
@@ -70,7 +69,6 @@ Computer.prototype.reset = function() {
 	this.palette[Math.pow(2, 13)]= 0x57A64E;
 	this.palette[Math.pow(2, 14)]= 0xCC4C4C;
 	this.palette[Math.pow(2, 15)]= 0x111111;
-	for (var i in this.palette){console.log(i);}
 	
 	
 	if (this.websockets) {

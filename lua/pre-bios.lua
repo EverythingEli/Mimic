@@ -1,4 +1,4 @@
-_HOST = "ComputerCraft 1.80pr1.12 (Minecraft 1.12.2)"
+_HOST = "ComputerCraft 1.82.3 (Minecraft 1.12.2)"
 _CC_DEFAULT_SETTINGS = ""
 
 local
