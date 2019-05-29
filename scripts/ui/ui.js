@@ -295,6 +295,8 @@ ui.afterLoad = function () {
 	canvas.height = size.height;
 	overlayCanvas.width = size.width;
 	overlayCanvas.height = size.height;
+	
+	render.updateContextSettings();
 
 	sidebar.update();
 

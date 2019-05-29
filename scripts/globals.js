@@ -48,9 +48,14 @@ globals.sides = [
 
 
 globals.paths = {
-	"font": "fonts/font.png",
+	"font": "fonts/term_font.png",
 	"rom": "lua/rom.zip",
 };
+
+config.font = {
+	"rows": 16,
+	"columns": 16,
+}
 
 
 globals.characterWidths = [

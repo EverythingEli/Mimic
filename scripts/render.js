@@ -15,13 +15,8 @@ var overlayContext = overlayCanvas.getContext("2d");
 var render = {};
 var font;
 
-
-var characters =
-	" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMN" +
-	"OPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
-
-var CHARACTERS_PER_LINE = 16;
-var LINE_Y_OFFSET = 2;
+var CharacterLength;
+var CharacterHeight;
 
 
 
@@ -31,18 +26,33 @@ var LINE_Y_OFFSET = 2;
 
 
 render.setup = function(callback) {
-	context.imageSmoothingEnabled = false;
-	context.webkitImageSmoothingEnabled = false;
-	context.mozIageSmoothingEnabled = false;
-	overlayContext.imageSmoothingEnabled = false;
-	overlayContext.webkitImageSmoothingEnabled = false;
-	overlayContext.mozImageSmoothingEnabled = false;
-
 	font = new Image();
 	font.src = globals.paths.font;
 	font.onload = function() {
+		CharacterLength = 6;
+		CharacterHeight = 9;
 		callback();
 	}
+}
+
+render.updateContextSettings = function() {
+	context.imageSmoothingEnabled = false;
+	context.webkitImageSmoothingEnabled = false;
+	context.mozImageSmoothingEnabled = false;
+	overlayContext.imageSmoothingEnabled = false;
+	overlayContext.webkitImageSmoothingEnabled = false;
+	overlayContext.mozImageSmoothingEnabled = false;
+}
+
+
+
+//
+//    External Functions
+//
+
+
+render.getFont = function() {
+	return font;
 }
 
 
@@ -59,12 +69,10 @@ render.characterBackground = function(x, y, color, ctx) {
 
 	var computer = core.getActiveComputer();
 	if (x >= 1 && y >= 1 && x <= computer.width && y <= computer.height) {
-		var actualWidth = config.cellWidth * config.terminalScale;
-		var actualHeight = config.cellHeight * config.terminalScale;
-		var cellX = ((x - 1) * actualWidth + config.borderWidth);
-		var cellY = ((y - 1) * actualHeight + config.borderHeight);
-		var cellWidth = actualWidth;
-		var cellHeight = actualHeight;
+		var cellWidth = config.cellWidth * config.terminalScale;
+		var cellHeight = config.cellHeight * config.terminalScale;
+		var cellX = ((x - 1) * cellWidth + config.borderWidth);
+		var cellY = ((y - 1) * cellHeight + config.borderHeight);
 
 		if(x == 1){
 			cellX = 0
@@ -95,40 +103,21 @@ render.characterText = function(x, y, text, color, ctx) {
 		ctx = context;
 	}
 
-	if (text == " ") {
-		return;
-	}
-
 	var computer = core.getActiveComputer();
 	if (x >= 1 && y >= 1 && x <= computer.width && y <= computer.height) {
-		var loc = characters.indexOf(text);
-		if (loc != -1) {
-			var imgW = font.width / 16;
-			var imgH = font.height / 16 / 16;
-			var startY = parseInt(color, 16) * (font.height / 16);
+		var m_font = computer.paletteCache[Math.pow(2,(parseInt(color, 16)-1))]// || font;
+		
+		var loc = text.charCodeAt(0);
+		var imgX = 1+(loc % config.font.columns)*(CharacterLength+2);
+		var imgY = 1+(Math.floor(loc / config.font.columns))*(CharacterHeight+2);
 
-			var imgX = loc % CHARACTERS_PER_LINE;
-			var imgY = (loc - imgX) / CHARACTERS_PER_LINE + LINE_Y_OFFSET;
-			imgX *= imgW;
-			imgY *= imgH;
-			imgY += startY;
+		var cellWidth = config.cellWidth * config.terminalScale;
+		var cellHeight = config.cellHeight * config.terminalScale;
+		var textX = (x - 1) * cellWidth + config.borderWidth;
+		var textY = (y - 1) * cellHeight + config.borderHeight + 1;
 
-			var offset = imgW / 2 - globals.characterWidths[loc] / 2 - 1;
-			if (text == "@" || text == "~") {
-				offset -= 1;
-			}
-
-			var actualWidth = config.cellWidth * config.terminalScale;
-			var actualHeight = config.cellHeight * config.terminalScale;
-			var textX = (x - 1) * actualWidth + config.borderWidth + offset;
-			var textY = (y - 1) * actualHeight + config.borderHeight + 1;
-
-			var scaledImgWidth = imgW * config.terminalScale;
-			var scaledImgHeight = imgH * config.terminalScale;
-
-			ctx.drawImage(font, imgX, imgY, imgW, imgH, textX, textY,
-				scaledImgWidth, scaledImgHeight);
-		}
+		ctx.drawImage(m_font, imgX, imgY, CharacterLength, CharacterHeight, textX, textY,
+			config.cellWidth, config.cellHeight);
 	}
 }
 
@@ -228,6 +217,7 @@ render.centredText = function(y, text, foreground, background, ctx) {
 render.cursorBlink = function() {
 	var computer = core.getActiveComputer();
 
+	if (!computer) return;
 	if (computer.cursor.blink && core.cursorFlash) {
 		overlayContext.clearRect(0, 0, canvas.width, canvas.height);
 
