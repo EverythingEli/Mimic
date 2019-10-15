@@ -24,7 +24,7 @@ var UIKey = function(label, code, id, char) {
 }
 
 UIKey.prototype.onMouseDown = function() {
-    navigator.vibrate(100)
+    navigator.vibrate(10)
 	var computer = core.getActiveComputer();
     if (this.parent.id) computer.eventStack.push(["key", this.parent.id, false]);
     if (this.parent.char) computer.eventStack.push(["char", this.parent.char]);
