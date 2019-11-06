@@ -1,3 +1,5 @@
+### Mimic 2 is coming out soon. This fork of Mimic is becoming deprecated!!!
+
 To Do
 - Support standard computers
 - Add simulated restone API
@@ -7,7 +9,6 @@ To Do
 - Support PWA functionality and add a PWA-tailored UI
 
 - Fix action button appearing in narrow mode
-- Fix pasting cursor
 - Fix startup scripts, allow use of shell API
 - Fix file downloading all previous files multiple times
 - Fix screenshot lagging
