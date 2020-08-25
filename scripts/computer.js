@@ -372,3 +372,8 @@ Computer.prototype.getLocation = function() {
 
 	return {"x": x, "y": y};
 }
+
+Computer.prototype.crash = function() {
+	bsod.render = {"FATAL : Manually initiated crash",[]}
+	this.hasErrored = true;
+}
