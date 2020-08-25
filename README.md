@@ -1,10 +1,6 @@
 # Mimic
 
-### Temporary maintenance by EveryOS.
-### Do not expect this to continue.
-
-Message from EveryOS: This is temporary maintenance. I plan on looking into
-[doppio](https://github.com/plasma-umass/doppio) in order to write my own emulator.
+### Continuation of this version of mimic.
 
 A fully featured emulator for the [Minecraft](http://minecraft.net) mod [ComputerCraft](http://computercraft.info) that runs straight in your browser.
 
@@ -49,6 +45,7 @@ Mimic makes use of
 
 * Made by [GravityScore](https://github.com/GravityScore) and [1lann](https://github.com/1lann)
 * Modified by [EveryOS](https://github.com/jasonthekitten)
+* Continued by [OMGasdV](https://github.com/EverythingEli)
 * Other contributors (e.g. Oeed, Apemanzilla)
 * ComputerCraft by dan200 (Twitter: [@DanTwoHundred](https://twitter.com/dan200)), moded by SquidDev
 * lua5.1.js by [Alexander Gladysh](https://github.com/agladysh)
